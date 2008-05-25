@@ -70,38 +70,32 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 			// and sequence of eight 4-byte subvectors of xmm2
 		"	mpsadbw $0, %%xmm1, %%xmm2	\n"
 
-			// xmm2 - word become 0xffff is L1=0, 0x0000 otherwise
+			// xmm2 - word become 0xffff if L1=0, 0x0000 otherwise
 		"	pcmpeqw %%xmm0, %%xmm2		\n"
 
 			// any L1=0?  if no, skip comparision inner loop
 		"	ptest   %%xmm2, %%xmm0		\n"
 		"	jc      1f			\n"
 
-		/*** inner loop ********************************************************/
+			/*** inner loop ************************************************/
 			// comparision inner loop: convert word mask to bitmask
-		"	pmovmskb %%xmm2, %%ebx		\n"
-			// we are interested in **word** positions
-		"	andl $0b0101010101010101, %%ebx	\n"
-		"2:\n"
-			"	bsf %%ebx, %%eax		\n"	// get next bit
+			"	pmovmskb %%xmm2, %%ebx		\n"
+				// we are interested in **word** positions
+			"	andl $0b0101010101010101, %%ebx	\n"
+
+		"	2:					\n"
+			"	bsf %%ebx, %%eax		\n"	// get next bit position
 			"	jz  1f				\n"	// no bit set? exit loop
 			"					\n"
 			"	btr %%eax, %%ebx		\n"	// unset bit
-			"	shr $1, %%eax			\n"	// divide positon by 2
-#if 0
-			"	movdqu (%%esi, %%eax), %%xmm7	\n"
-			"	pcmpeqb %%xmm1, %%xmm7		\n"
-			"	pmovmskb %%xmm7, %%edx		\n"
-			"	andl %%edi, %%edx		\n"
-			"	cmpl %%edi, %%edx		\n"
-#endif
-#if 1
+			"	shr $1, %%eax			\n"	// divide position by 2
+				
 				// save registers before invoke strncmp
 			"	movl  %%eax, 12(%%esp)		\n"
 			"	movl  %%ecx, 16(%%esp)		\n"
 			"	movl  %%edx, 20(%%esp)		\n"
 
-				// update function arguments
+				// update function argument
 			"	leal 4(%%esi, %%eax), %%eax	\n"	
 			"	movl  %%eax, 4(%%esp)		\n"	// s2+4
 
@@ -109,11 +103,10 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 			"	call  strncmp			\n"
 			"	test  %%eax, %%eax		\n"	// result == 0?
 				
-				// resore registers
+				// restore registers
 			"	movl  12(%%esp), %%eax		\n"
 			"	movl  16(%%esp), %%ecx		\n"
 			"	movl  20(%%esp), %%edx		\n"
-#endif
 			"	jnz 2b				\n"
 
 			"	leal (%%eax, %%esi), %%eax	\n"	// eax -- address
@@ -123,7 +116,8 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 		"1:					\n"
 		"	addl $8, %%esi			\n"
 		"	subl $8, %%ecx			\n"
-		"	jns  0b				\n"
+		"	cmpl $0, %%ecx			\n"
+		"	jg   0b				\n"
 
 		"	xorl %%eax, %%eax		\n"
 		"4:					\n"
@@ -138,7 +132,7 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 	return result;
 }
 
-uint8_t buffer[1024*200 + 1];
+uint8_t buffer[1024*500 + 1];
 
 void help() {
 	puts("prog sse4|libc|verify iter-count string");
