@@ -6,8 +6,6 @@
 
 #define packed_byte(x) {x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x}
 
-int Result;
-
 void print_bin(uint32_t x) {
 	int i;
 	for (i=0; i < 32; i++)
@@ -15,11 +13,9 @@ void print_bin(uint32_t x) {
 			putchar('1');
 		else
 			putchar('0');
-	
-	putchar('\n');
 }
 
-int find(char* s1, int n1, char* s2, int n2) {
+#if 0
 	static uint32_t mask[] = {
 		/*  5 */ 0x0001f,
 		/*  6 */ 0x0003f,
@@ -38,77 +34,108 @@ int find(char* s1, int n1, char* s2, int n2) {
 		/* 19 */ 0x7ffff,
 		/* 20 */ 0xfffff
 	};
+#endif
+
+
+char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
+	char* result;
+	
 	// n1 = 4..20
 	// n2 > 16
 	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
 	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
 	asm volatile (
+		/*** initialization ****************************************************/
+		// we have to save 3 registers: eax, ecx and edx
+		// also strncmp needs three arguments, thus esp -= (3+3)*4 = 
+		"	addl   $-24, %%esp		\n"
+
+		// we invoke strncmp(s1+4, s2+4, n1-4) -- s1+4 and n1-4 are constant
+		// across all iterations, thus stack frame can be partially initialize
+		"	movl   8(%%ebp), %%eax		\n"
+		"	addl         $4, %%eax		\n"
+		"	movl      %%eax, 0(%%esp)	\n" // s1+4
+		"					\n"
+		"	movl  12(%%ebp), %%eax		\n"
+		"	subl         $4, %%eax		\n"
+		"	movl      %%eax, 8(%%esp)	\n" // n1-4
+		"					\n"
+		
+		/*** main loop *********************************************************/
 		"0:					\n"
+			// load 16 bytes, we consider just 8+3 at the beggining
 		"	movdqu (%%esi), %%xmm2		\n"
+							
+			// xmm2 - vector of L1 distances between s1 4-byte prefix
+			// and sequence of eight 4-byte subvectors of xmm2
 		"	mpsadbw $0, %%xmm1, %%xmm2	\n"
+
+			// xmm2 - word become 0xffff is L1=0, 0x0000 otherwise
 		"	pcmpeqw %%xmm0, %%xmm2		\n"
-		"					\n"
-//		"	pusha				\n"
-//		"	pushl $1			\n"
-//		"	call dump_xmm			\n"
-//		"	popl %%eax			\n"
-//		"	pushl $3			\n"
-//		"	call dump_xmm			\n"
-//		"	popl %%eax			\n"
-//		"	pushl $2			\n"
-//		"	call dump_xmm_word		\n"
-//		"	popl %%eax			\n"
-//		"	pushl $0			\n"
-//		"	call dump_xmm			\n"
-//		"	popl %%eax			\n"
-//		"	popa				\n"
-		"					\n"
-			
+
+			// any L1=0?  if no, skip comparision inner loop
 		"	ptest   %%xmm2, %%xmm0		\n"
 		"	jc      1f			\n"
 
+		/*** inner loop ********************************************************/
+			// comparision inner loop: convert word mask to bitmask
 		"	pmovmskb %%xmm2, %%ebx		\n"
-//		"	pusha				\n"
-//		"	pushl %%ebx			\n"
-//		"	call print_bin			\n"
-//		"	popl %%eax			\n"
-//		"	popa				\n"
+			// we are interested in **word** positions
 		"	andl $0b0101010101010101, %%ebx	\n"
 		"2:\n"
-		"	bsf %%ebx, %%eax		\n"
-		"	jz  1f				\n"
-		"					\n"
-		"	btr %%eax, %%ebx		\n"
-		"	shr $1, %%eax			\n"
-		"	movdqu (%%esi, %%eax), %%xmm7	\n"
-		"	pcmpeqb %%xmm1, %%xmm7		\n"
-		"	pmovmskb %%xmm7, %%edx		\n"
-		"	andl %%edi, %%edx		\n"
-		"	cmpl %%edi, %%edx		\n"
-		"	jne 2b				\n"
-		"	jmp 4f				\n"
+			"	bsf %%ebx, %%eax		\n"	// get next bit
+			"	jz  1f				\n"	// no bit set? exit loop
+			"					\n"
+			"	btr %%eax, %%ebx		\n"	// unset bit
+			"	shr $1, %%eax			\n"	// divide positon by 2
+#if 0
+			"	movdqu (%%esi, %%eax), %%xmm7	\n"
+			"	pcmpeqb %%xmm1, %%xmm7		\n"
+			"	pmovmskb %%xmm7, %%edx		\n"
+			"	andl %%edi, %%edx		\n"
+			"	cmpl %%edi, %%edx		\n"
+#endif
+#if 1
+				// save registers before invoke strncmp
+			"	movl  %%eax, 12(%%esp)		\n"
+			"	movl  %%ecx, 16(%%esp)		\n"
+			"	movl  %%edx, 20(%%esp)		\n"
 
+				// update function arguments
+			"	leal 4(%%esi, %%eax), %%eax	\n"	
+			"	movl  %%eax, 4(%%esp)		\n"	// s2+4
+
+				// invoke strncmp(s1+4, s2+4, n1-4)
+			"	call  strncmp			\n"
+			"	test  %%eax, %%eax		\n"	// result == 0?
+				
+				// resore registers
+			"	movl  12(%%esp), %%eax		\n"
+			"	movl  16(%%esp), %%ecx		\n"
+			"	movl  20(%%esp), %%edx		\n"
+#endif
+			"	jnz 2b				\n"
+
+			"	leal (%%eax, %%esi), %%eax	\n"	// eax -- address
+			"	jmp 4f				\n"	// of s1's first occurance
+
+		/*** main loop prologue ************************************************/
 		"1:					\n"
 		"	addl $8, %%esi			\n"
 		"	subl $8, %%ecx			\n"
 		"	jns  0b				\n"
 
-		"	movl $0, Result			\n"
-		"	jmp  5f				\n"
-		"					\n"
+		"	xorl %%eax, %%eax		\n"
 		"4:					\n"
-		"	addl %%esi, %%eax		\n"
-		"	movl %%eax, Result		\n"
-		"					\n"
-		"					\n"
-		"5:					\n"
-		:
+		"	addl   $24, %%esp		\n"
+		: "=a" (result)
 		: "S" (s2),
-		  "D" (mask[n1-5]),
-		  "c" (n2)
+		  "c" (n2-n1)
 
-		: "eax", "ebx", "edx"
+		: "ebx"
 	);
+
+	return result;
 }
 
 uint8_t buffer[1024*200 + 1];
@@ -134,7 +161,7 @@ int main(int argc, char* argv[]) {
 		help();
 
 	int fun, iters, n1;
-	char s1[32];
+	char* s1;
 	if (strcasecmp("sse4", argv[1]) == 0)
 		fun = 0;
 	else
@@ -151,21 +178,21 @@ int main(int argc, char* argv[]) {
 	else
 		iters = atoi(argv[2]);
 
-	n1 = strlen(argv[3]);
+	s1 = argv[3];
+	n1 = strlen(s1);
 	if ((n1 < 4))
 		help();
-	else {
-		if (n1 > 16) n1 = 16;
-		strncpy(s1, argv[3], 16);
-		s1[16] = 0;
-		printf("'%s', %d chars\n", s1, n1);
-	}
+	else
+		printf("s1(%d)='%s'\n", n1, s1);
+
+	char* r1;
+	char* r2;
 
 	switch (fun) {
 		case 0:
 			puts("SSE4");
 			for (i=0; i < iters; i++)
-				find(s1, n1, buffer, size);
+				sse4_strstr(s1, n1, buffer, size);
 			break;
 
 		case 1:
@@ -177,10 +204,16 @@ int main(int argc, char* argv[]) {
 		
 		case 2:
 			puts("verify");
-			find(s1, n1, buffer, size);
-			printf("SSE4 = %d\n", Result);
-			printf("LibC = %d\n", strstr(buffer, s1));
-			if (Result != (int)strstr(buffer, s1))
+			r1 = strstr(buffer, s1);
+			r2 = sse4_strstr(s1, n1, buffer, size);
+			
+			printf("LibC = %d\n", r1);
+			printf("SSE4 = %d %s\n",
+				r2,
+				(r1 != r2) ? "FAILED!!!" : ""
+			);
+				
+			if (r1 != r2)
 				return 1;
 	}
 
