@@ -38,10 +38,9 @@ void print_bin(uint32_t x) {
 
 
 char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
+	// n1 > 4, n2 > 4
 	char* result;
 	
-	// n1 = 4..20
-	// n2 > 16
 	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
 	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
 	asm volatile (
@@ -50,8 +49,9 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 		// also strncmp needs three arguments, thus esp -= (3+3)*4 = 
 		"	addl   $-24, %%esp		\n"
 
-		// we invoke strncmp(s1+4, s2+4, n1-4) -- s1+4 and n1-4 are constant
-		// across all iterations, thus stack frame can be partially initialize
+		// function strncmp is invoke with argument s1+4, s2+4, n1-4 -- s1+4 and
+		// n1-4 are constant across all iterations, thus stack frame
+		// can be partially initialize:
 		"	movl   8(%%ebp), %%eax		\n"
 		"	addl         $4, %%eax		\n"
 		"	movl      %%eax, 0(%%esp)	\n" // s1+4
@@ -63,11 +63,12 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 		
 		/*** main loop *********************************************************/
 		"0:					\n"
-			// load 16 bytes, we consider just 8+3 at the beggining
+			// load 16 bytes, we consider just 8+3 chars at the beggining
 		"	movdqu (%%esi), %%xmm2		\n"
+		"	addl $8, %%esi			\n" // advance pointer: s1 += 8
 							
-			// xmm2 - vector of L1 distances between s1 4-byte prefix
-			// and sequence of eight 4-byte subvectors of xmm2
+			// xmm2 - vector of L1 distances between s1's 4-byte prefix
+			// and sequence of eight 4-byte subvectors from xmm2
 		"	mpsadbw $0, %%xmm1, %%xmm2	\n"
 
 			// xmm2 - word become 0xffff if L1=0, 0x0000 otherwise
@@ -79,15 +80,15 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 
 			/*** inner loop ************************************************/
 			// comparision inner loop: convert word mask to bitmask
-			"	pmovmskb %%xmm2, %%ebx		\n"
+			"	pmovmskb %%xmm2, %%edx		\n"
 				// we are interested in **word** positions
-			"	andl $0b0101010101010101, %%ebx	\n"
+			"	andl $0b0101010101010101, %%edx	\n"
 
 		"	2:					\n"
-			"	bsf %%ebx, %%eax		\n"	// get next bit position
+			"	bsf %%edx, %%eax		\n"	// get next bit position
 			"	jz  1f				\n"	// no bit set? exit loop
 			"					\n"
-			"	btr %%eax, %%ebx		\n"	// unset bit
+			"	btr %%eax, %%edx		\n"	// unset bit
 			"	shr $1, %%eax			\n"	// divide position by 2
 				
 				// save registers before invoke strncmp
@@ -96,7 +97,7 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 			"	movl  %%edx, 20(%%esp)		\n"
 
 				// update function argument
-			"	leal 4(%%esi, %%eax), %%eax	\n"	
+			"	leal -4(%%esi, %%eax), %%eax	\n"	
 			"	movl  %%eax, 4(%%esp)		\n"	// s2+4
 
 				// invoke strncmp(s1+4, s2+4, n1-4)
@@ -109,24 +110,21 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 			"	movl  20(%%esp), %%edx		\n"
 			"	jnz 2b				\n"
 
-			"	leal (%%eax, %%esi), %%eax	\n"	// eax -- address
+			"	leal -8(%%eax, %%esi), %%eax	\n"	// eax -- address
 			"	jmp 4f				\n"	// of s1's first occurance
 
 		/*** main loop prologue ************************************************/
 		"1:					\n"
-		"	addl $8, %%esi			\n"
 		"	subl $8, %%ecx			\n"
 		"	cmpl $0, %%ecx			\n"
 		"	jg   0b				\n"
 
-		"	xorl %%eax, %%eax		\n"
+		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
 		"4:					\n"
-		"	addl   $24, %%esp		\n"
+		"	addl   $24, %%esp		\n" // and finally restore stack frame
 		: "=a" (result)
 		: "S" (s2),
 		  "c" (n2-n1)
-
-		: "ebx"
 	);
 
 	return result;
