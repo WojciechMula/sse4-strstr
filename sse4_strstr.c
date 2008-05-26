@@ -15,29 +15,54 @@ void print_bin(uint32_t x) {
 			putchar('0');
 }
 
-#if 0
-	static uint32_t mask[] = {
-		/*  5 */ 0x0001f,
-		/*  6 */ 0x0003f,
-		/*  7 */ 0x0007f,
-		/*  8 */ 0x000ff,
-		/*  9 */ 0x001ff,
-		/* 10 */ 0x003ff,
-		/* 11 */ 0x007ff,
-		/* 12 */ 0x00fff,
-		/* 13 */ 0x01fff,
-		/* 14 */ 0x03fff,
-		/* 15 */ 0x07fff,
-		/* 16 */ 0x0ffff,
-		/* 17 */ 0x1ffff,
-		/* 18 */ 0x3ffff,
-		/* 19 */ 0x7ffff,
-		/* 20 */ 0xfffff
-	};
-#endif
+static uint8_t mask[][16] = {
+	{0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00},
+	{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff},
+};
+
+char* sse4_strstr_any(char* s1, int n1, char* s2, int n2);
+char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2);
+char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2);
+char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2);
 
 
 char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
+	switch (n1) {
+		case 0:
+			return NULL;
+		case 1:
+			return strchr(s2, s1[1]);
+		case 2:
+		case 3:
+			return strstr(s2, s1);
+		case 4:
+			return sse4_strstr_len4(s1, n1, s2, n2);
+		case 5 ... 20:
+			return sse4_strstr_max20(s1, n1, s2, n2);
+		case 21 ... 36:
+			return sse4_strstr_max36(s1, n1, s2, n2);
+		default:
+			return sse4_strstr_any(s1, n1, s2, n2);
+
+	}
+}
+
+
+char* sse4_strstr_any(char* s1, int n1, char* s2, int n2) {
 	// n1 > 4, n2 > 4
 	char* result;
 	
@@ -130,6 +155,187 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 	return result;
 }
 
+
+char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2) {
+	// 4 <= n1 <= 20, n2 > 4
+	char* result;
+	
+	asm volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5]));
+	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));
+	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
+	asm volatile (
+		/*** main loop *********************************************************/
+		"0:					\n"
+			// load 16 bytes, MPSADBW consider just 8+3 chars at the beggining
+		"	movdqu (%%esi), %%xmm7		\n"
+		"	addl $8, %%esi			\n" // advance pointer: s1 += 8
+							
+			// xmm2 - vector of L1 distances between s1's 4-byte prefix
+			// and sequence of eight 4-byte subvectors from xmm2
+		"	mpsadbw $0, %%xmm1, %%xmm7	\n"
+
+			// xmm2 - word become 0xffff if L1=0, 0x0000 otherwise
+		"	pcmpeqw %%xmm0, %%xmm7		\n"
+
+			// any L1=0?  if no, skip comparision inner loop
+		"	ptest   %%xmm7, %%xmm0		\n"
+		"	jc      1f			\n"
+
+			/*** inner loop ************************************************/
+			// comparision inner loop: convert word mask to bitmask
+			"	pmovmskb %%xmm7, %%edx		\n"
+				// we are interested in **word** positions
+			"	andl $0b0101010101010101, %%edx	\n"
+
+		"	2:					\n"
+			"	bsf %%edx, %%eax		\n"	// get next bit position
+			"	jz  1f				\n"	// no bit set? exit loop
+			"					\n"
+			"	btr %%eax, %%edx		\n"	// unset bit
+			"	shr $1, %%eax			\n"	// divide position by 2
+			"	movdqu -4(%%esi, %%eax), %%xmm7	\n"
+			"	pcmpeqb %%xmm2, %%xmm7		\n"
+			"	ptest	%%xmm6, %%xmm7		\n"
+			"	jnc 2b				\n"
+
+			"	leal -8(%%eax, %%esi), %%eax	\n"	// eax -- address
+			"	jmp 4f				\n"	// of s1's first occurance
+
+		/*** main loop prologue ************************************************/
+		"1:					\n"
+		"	subl $8, %%ecx			\n"
+		"	cmpl $0, %%ecx			\n"
+		"	jg   0b				\n"
+
+		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
+		"4:					\n"
+		: "=a" (result)
+		: "S" (s2),
+		  "c" (n2-n1)
+	);
+
+	return result;
+}
+
+
+char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2) {
+	// 20 <= n1 <= 36, n2 > 4
+	char* result;
+	
+	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));
+	asm volatile ("movdqu (%%eax), %%xmm3" : : "a" (s1+4+16));
+	asm volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5]));
+	asm volatile ("pand    %%xmm6, %%xmm3" : : );
+	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
+	asm volatile ("pcmpeqb %%xmm5, %%xmm5" : : );
+	asm volatile (
+		/*** main loop *********************************************************/
+		"0:					\n"
+			// load 16 bytes, MPSADBW consider just 8+3 chars at the beggining
+		"	movdqu (%%esi), %%xmm7		\n"
+		"	addl $8, %%esi			\n" // advance pointer: s1 += 8
+							
+			// xmm2 - vector of L1 distances between s1's 4-byte prefix
+			// and sequence of eight 4-byte subvectors from xmm2
+		"	mpsadbw $0, %%xmm1, %%xmm7	\n"
+
+			// xmm2 - word become 0xffff if L1=0, 0x0000 otherwise
+		"	pcmpeqw %%xmm0, %%xmm7		\n"
+
+			// any L1=0?  if no, skip comparision inner loop
+		"	ptest   %%xmm7, %%xmm0		\n"
+		"	jc      1f			\n"
+
+			/*** inner loop ************************************************/
+			// comparision inner loop: convert word mask to bitmask
+			"	pmovmskb %%xmm7, %%edx		\n"
+				// we are interested in **word** positions
+			"	andl $0b0101010101010101, %%edx	\n"
+
+		"	2:					\n"
+			"	bsf %%edx, %%eax		\n"	// get next bit position
+			"	jz  1f				\n"	// no bit set? exit loop
+			"					\n"
+			"	btr %%eax, %%edx		\n"	// unset bit
+			"	shr $1, %%eax			\n"	// divide position by 2
+			"	movdqu -4(%%esi, %%eax), %%xmm7	\n"
+			"	movdqu 12(%%esi, %%eax), %%xmm4	\n"
+			"	pand    %%xmm6, %%xmm4		\n"
+			"	pcmpeqb %%xmm2, %%xmm7		\n"
+			"	pcmpeqb %%xmm3, %%xmm4		\n"
+			"	pand    %%xmm7, %%xmm4		\n"
+			"	ptest	%%xmm5, %%xmm7		\n"
+			"	jnc 2b				\n"
+
+			"	leal -8(%%eax, %%esi), %%eax	\n"	// eax -- address
+			"	jmp 4f				\n"	// of s1's first occurance
+
+		/*** main loop prologue ************************************************/
+		"1:					\n"
+		"	subl $8, %%ecx			\n"
+		"	cmpl $0, %%ecx			\n"
+		"	jg   0b				\n"
+
+		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
+		"4:					\n"
+		: "=a" (result)
+		: "S" (s2),
+		  "c" (n2-n1)
+	);
+
+	return result;
+}
+
+
+char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2) {
+	// n1 == 4, n2 > 4
+	char* result;
+	
+	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
+	asm volatile (
+		/*** main loop *********************************************************/
+		"0:					\n"
+			// load 16 bytes, we consider just 8+3 chars at the beggining
+		"	movdqu (%%esi), %%xmm2		\n"
+		"	addl $8, %%esi			\n" // advance pointer: s1 += 8
+							
+			// xmm2 - vector of L1 distances between s1's 4-byte prefix
+			// and sequence of eight 4-byte subvectors from xmm2
+		"	mpsadbw $0, %%xmm1, %%xmm2	\n"
+
+			// xmm2 - word become 0xffff if L1=0, 0x0000 otherwise
+		"	pcmpeqw %%xmm0, %%xmm2		\n"
+
+			// any L1=0?  if no, skip comparision inner loop
+		"	ptest   %%xmm2, %%xmm0		\n"
+		"	jnc     1f			\n"
+
+		"	subl $8, %%ecx			\n"
+		"	cmpl $0, %%ecx			\n"
+		"	jg   0b				\n"
+
+		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
+		"	jmp  2f				\n"
+
+		"1:					\n"
+		"	pmovmskb %%xmm2, %%eax		\n"
+		"	bsfl      %%eax, %%eax		\n"
+		"	shrl         $1, %%eax		\n"
+		"	lea -8(%%esi, %%eax), %%eax	\n"
+		"2:					\n"
+		: "=a" (result)
+		: "S" (s2),
+		  "c" (n2-n1)
+	);
+
+	return result;
+}
+
+
+// sample
 uint8_t buffer[1024*500 + 1];
 
 void help() {
