@@ -1,3 +1,29 @@
+/*
+	SSE4 string search --- modification of Karp-Rabin algorithm, $Revision: 1.8 $
+	
+	Acceleration of strstr using SSE4 instruction MPSADBW.
+	This program includes one wrapper sse4_strstr around
+	following functions:
+
+	* sse4_strstr_any - exact comparison is done with built-in
+	  function strncmp.c
+	* sse4_strstr_len3, see4_strstr_len4 - optimized
+	  for substring of length 3 and 4 chars, no additional comparison
+	  is needed
+	* sse4_strstr_max20, sse4_strstr_max36 - optimized
+	  for substring of length 4..20 and 20..36, exact comparision
+	  is done with few assebler instructions
+
+
+	Author: Wojciech Mu³a
+	e-mail: wojciech_mula@poczta.onet.pl
+	www:    http://www.mula.w.pl
+	
+	License: BSD
+	
+	initial release 27-05-2008, last update $Date: 2008-05-27 11:43:51 $
+*/
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -473,3 +499,5 @@ int main(int argc, char* argv[]) {
 
 	return 0;
 }
+
+// eof
