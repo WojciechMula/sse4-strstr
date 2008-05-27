@@ -2,18 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "dump_xmm.c"
-
-#define packed_byte(x) {x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x}
-
-void print_bin(uint32_t x) {
-	int i;
-	for (i=0; i < 32; i++)
-		if (x & (1 << i))
-			putchar('1');
-		else
-			putchar('0');
-}
 
 static uint8_t mask[][16] = {
 	{0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
@@ -106,7 +94,7 @@ char* sse4_strstr_any(char* s1, int n1, char* s2, int n2) {
 			/*** inner loop ************************************************/
 			// comparision inner loop: convert word mask to bitmask
 			"	pmovmskb %%xmm2, %%edx		\n"
-				// we are interested in **word** positions
+				// we are interested in **word** indexes
 			"	andl $0b0101010101010101, %%edx	\n"
 
 		"	2:					\n"
@@ -162,7 +150,7 @@ char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2) {
 	
 	asm volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5]));
 	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
-	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));
+	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));	// xmm2 -- s1 suffix
 	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
 	asm volatile (
 		/*** main loop *********************************************************/
@@ -219,17 +207,18 @@ char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2) {
 }
 
 
+
 char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2) {
 	// 20 <= n1 <= 36, n2 > 4
 	char* result;
 	
 	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
-	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));
-	asm volatile ("movdqu (%%eax), %%xmm3" : : "a" (s1+4+16));
-	asm volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5]));
+	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));		// xmm2 - s1[4:20]
+	asm volatile ("movdqu (%%eax), %%xmm3" : : "a" (s1+4+16));	// xmm3 - s1[20:] (suffix)
+	asm volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5-16]));
 	asm volatile ("pand    %%xmm6, %%xmm3" : : );
-	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
-	asm volatile ("pcmpeqb %%xmm5, %%xmm5" : : );
+	asm volatile ("pxor    %%xmm0, %%xmm0" : : ); // packed_byte(0x00)
+	asm volatile ("pcmpeqb %%xmm5, %%xmm5" : : ); // packed_byte(0xff)
 	asm volatile (
 		/*** main loop *********************************************************/
 		"0:					\n"
@@ -266,7 +255,7 @@ char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2) {
 			"	pcmpeqb %%xmm2, %%xmm7		\n"
 			"	pcmpeqb %%xmm3, %%xmm4		\n"
 			"	pand    %%xmm7, %%xmm4		\n"
-			"	ptest	%%xmm5, %%xmm7		\n"
+			"	ptest	%%xmm5, %%xmm4		\n"
 			"	jnc 2b				\n"
 
 			"	leal -8(%%eax, %%esi), %%eax	\n"	// eax -- address
@@ -338,50 +327,56 @@ char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2) {
 // sample
 uint8_t buffer[1024*500 + 1];
 
+
 void help() {
-	puts("prog sse4|libc|verify iter-count string");
-	puts("* len(string) = 16");
+	puts("prog file sse4|libc|verify iter-count string");
 	puts("* iter-count > 0");
 	exit(1);
 }
 
+
 int main(int argc, char* argv[]) {
 	FILE* f;
-	int i, k;
+	int i;
 	int size;
 
-	f = fopen("funny.txt", "r");
+	if (argc != 5)
+		help();
+
+	f = fopen(argv[1], "r");
+	if (!f) {
+		printf("can't open '%s'\n", argv[1]);
+		return 2;
+	}
+		
 	size = fread(buffer, 1, sizeof(buffer), f);
 	buffer[size] = 0;
 	fclose(f);
 
-	if (argc != 4)
-		help();
-
-	int fun, iters, n1;
+	int fun = -1, iters, n1;
 	char* s1;
-	if (strcasecmp("sse4", argv[1]) == 0)
+	if (strcasecmp("sse4", argv[2]) == 0)
 		fun = 0;
 	else
-	if (strcasecmp("libc", argv[1]) == 0)
+	if (strcasecmp("libc", argv[2]) == 0)
 		fun = 1;
 	else
-	if (strcasecmp("verify", argv[1]) == 0)
+	if (strcasecmp("verify", argv[2]) == 0)
 		fun = 2;
 	else
 		help();
 
-	if (atoi(argv[2]) <= 0 && (fun != 2))
+	if (atoi(argv[3]) <= 0 && (fun != 2))
 		help();
 	else
-		iters = atoi(argv[2]);
+		iters = atoi(argv[3]);
 
-	s1 = argv[3];
+	s1 = argv[4];
 	n1 = strlen(s1);
 	if ((n1 < 4))
 		help();
 	else
-		printf("s1(%d)='%s'\n", n1, s1);
+		printf("s1(%d)='%s' s2(%d)\n", n1, s1, size);
 
 	char* r1;
 	char* r2;
@@ -390,25 +385,33 @@ int main(int argc, char* argv[]) {
 		case 0:
 			puts("SSE4");
 			for (i=0; i < iters; i++)
-				sse4_strstr(s1, n1, buffer, size);
+				sse4_strstr(s1, n1, (char*)buffer, size);
 			break;
 
 		case 1:
 			puts("Lib C");
-			k = 0;
-			for (i=0; i < iters; i++)
-				k += (unsigned int)strstr(buffer, s1);
+			for (i=0; i < iters; i++) {
+				//(unsigned int)strstr((char*)buffer, s1);
+				asm volatile (
+					"movl $buffer,  (%%esp)\n"
+					"movl      %0, 4(%%esp)\n"
+					"call strstr\n"
+					:
+					: "r" (s1)
+					: "eax", "ecx", "edx"
+				);
+			}
 			break;
 		
 		case 2:
 			puts("verify");
-			r1 = strstr(buffer, s1);
-			r2 = sse4_strstr(s1, n1, buffer, size);
+			r1 = strstr((char*)buffer, s1);
+			r2 = sse4_strstr(s1, n1, (char*)buffer, size);
 			
-			printf("LibC = %d\n", r1);
-			printf("SSE4 = %d %s\n",
-				r2,
-				(r1 != r2) ? "FAILED!!!" : ""
+			printf("LibC = %u\n", (unsigned int)r1);
+			printf("SSE4 = %u %s\n",
+				(unsigned int)r2,
+				(r1 != r2) ? "FAILED!!!" : "ok"
 			);
 				
 			if (r1 != r2)
