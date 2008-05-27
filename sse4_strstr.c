@@ -23,6 +23,7 @@ static uint8_t mask[][16] = {
 };
 
 char* sse4_strstr_any(char* s1, int n1, char* s2, int n2);
+char* sse4_strstr_len3(char* s1, int n1, char* s2, int n2);
 char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2);
 char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2);
 char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2);
@@ -35,8 +36,9 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 		case 1:
 			return strchr(s2, s1[1]);
 		case 2:
-		case 3:
 			return strstr(s2, s1);
+		case 3:
+			return sse4_strstr_len3(s1, n1, s2, n2);
 		case 4:
 			return sse4_strstr_len4(s1, n1, s2, n2);
 		case 5 ... 20:
@@ -324,6 +326,56 @@ char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2) {
 }
 
 
+char* sse4_strstr_len3(char* s1, int n1, char* s2, int n2) {
+	// n1 == 4, n2 > 4
+	char* result;
+	
+	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
+	asm volatile (
+		/*** main loop *********************************************************/
+		"0:					\n"
+			// load 16 bytes, we consider just 8+3 chars at the beggining
+		"	movdqu (%%esi), %%xmm2		\n"
+		"	addl $8, %%esi			\n" // advance pointer: s1 += 8
+		"	movdqa  %%xmm2, %%xmm3		\n"
+		"	psrldq      $3, %%xmm3		\n"
+		"	pmovzxbw %%xmm3, %%xmm3		\n"
+							
+			// xmm2 - vector of L1 distances between s1's 4-byte prefix
+			// and sequence of eight 4-byte subvectors from xmm2
+		"	mpsadbw $0, %%xmm1, %%xmm2	\n"
+		"	psubw   %%xmm3, %%xmm2		\n"
+
+			// xmm2 - word become 0xffff if L1=0, 0x0000 otherwise
+		"	pcmpeqw %%xmm0, %%xmm2		\n"
+
+			// any L1=0?  if no, skip comparision inner loop
+		"	ptest   %%xmm2, %%xmm0		\n"
+		"	jnc     1f			\n"
+
+		"	subl $8, %%ecx			\n"
+		"	cmpl $0, %%ecx			\n"
+		"	jg   0b				\n"
+
+		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
+		"	jmp  2f				\n"
+
+		"1:					\n"
+		"	pmovmskb %%xmm2, %%eax		\n"
+		"	bsfl      %%eax, %%eax		\n"
+		"	shrl         $1, %%eax		\n"
+		"	lea -8(%%esi, %%eax), %%eax	\n"
+		"2:					\n"
+		: "=a" (result)
+		: "S" (s2),
+		  "c" (n2-n1)
+	);
+
+	return result;
+}
+
+
 // sample
 uint8_t buffer[1024*500 + 1];
 
@@ -373,7 +425,7 @@ int main(int argc, char* argv[]) {
 
 	s1 = argv[4];
 	n1 = strlen(s1);
-	if ((n1 < 4))
+	if ((n1 < 3))
 		help();
 	else
 		printf("s1(%d)='%s' s2(%d)\n", n1, s1, size);
