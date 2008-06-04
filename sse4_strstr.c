@@ -1,5 +1,5 @@
 /*
-	SSE4 string search --- modification of Karp-Rabin algorithm, $Revision: 1.8 $
+	SSE4 string search --- modification of Karp-Rabin algorithm, $Revision: 1.9 $
 	
 	Acceleration of strstr using SSE4 instruction MPSADBW.
 	This program includes one wrapper sse4_strstr around
@@ -21,13 +21,14 @@
 	
 	License: BSD
 	
-	initial release 27-05-2008, last update $Date: 2008-05-27 11:43:51 $
+	initial release 27-05-2008, last update $Date: 2008-06-04 12:45:02 $
 */
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 
 static uint8_t mask[][16] = {
 	{0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
@@ -67,9 +68,15 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 			return sse4_strstr_len3(s1, n1, s2, n2);
 		case 4:
 			return sse4_strstr_len4(s1, n1, s2, n2);
-		case 5 ... 20:
+		case 5: case 6: case 7: case 8: case 9:
+		case 10: case 11: case 12: case 13: case 14:
+		case 15: case 16: case 17: case 18: case 19:
+		case 20: /* 5..20 */
 			return sse4_strstr_max20(s1, n1, s2, n2);
-		case 21 ... 36:
+		case 21: case 22: case 23: case 24: case 25: 
+		case 26: case 27: case 28: case 29: case 30: 
+		case 31: case 32: case 33: case 34: case 35: 
+		case 36: /* 21..36 */
 			return sse4_strstr_max36(s1, n1, s2, n2);
 		default:
 			return sse4_strstr_any(s1, n1, s2, n2);
@@ -82,9 +89,9 @@ char* sse4_strstr_any(char* s1, int n1, char* s2, int n2) {
 	// n1 > 4, n2 > 4
 	char* result;
 	
-	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
-	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
-	asm volatile (
+	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	__asm__ volatile ("pxor    %%xmm0, %%xmm0" : : );
+	__asm__ volatile (
 		/*** initialization ****************************************************/
 		// we have to save 3 registers: eax, ecx and edx
 		// also strncmp needs three arguments, thus esp -= (3+3)*4 = 
@@ -176,11 +183,11 @@ char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2) {
 	// 4 <= n1 <= 20, n2 > 4
 	char* result;
 	
-	asm volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5]));
-	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
-	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));	// xmm2 -- s1 suffix
-	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
-	asm volatile (
+	__asm__ volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5]));
+	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	__asm__ volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));	// xmm2 -- s1 suffix
+	__asm__ volatile ("pxor    %%xmm0, %%xmm0" : : );
+	__asm__ volatile (
 		/*** main loop *********************************************************/
 		"0:					\n"
 			// load 16 bytes, MPSADBW consider just 8+3 chars at the beggining
@@ -240,14 +247,14 @@ char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2) {
 	// 20 <= n1 <= 36, n2 > 4
 	char* result;
 	
-	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
-	asm volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));		// xmm2 - s1[4:20]
-	asm volatile ("movdqu (%%eax), %%xmm3" : : "a" (s1+4+16));	// xmm3 - s1[20:] (suffix)
-	asm volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5-16]));
-	asm volatile ("pand    %%xmm6, %%xmm3" : : );
-	asm volatile ("pxor    %%xmm0, %%xmm0" : : ); // packed_byte(0x00)
-	asm volatile ("pcmpeqb %%xmm5, %%xmm5" : : ); // packed_byte(0xff)
-	asm volatile (
+	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	__asm__ volatile ("movdqu (%%eax), %%xmm2" : : "a" (s1+4));		// xmm2 - s1[4:20]
+	__asm__ volatile ("movdqu (%%eax), %%xmm3" : : "a" (s1+4+16));	// xmm3 - s1[20:] (suffix)
+	__asm__ volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5-16]));
+	__asm__ volatile ("pand    %%xmm6, %%xmm3" : : );
+	__asm__ volatile ("pxor    %%xmm0, %%xmm0" : : ); // packed_byte(0x00)
+	__asm__ volatile ("pcmpeqb %%xmm5, %%xmm5" : : ); // packed_byte(0xff)
+	__asm__ volatile (
 		/*** main loop *********************************************************/
 		"0:					\n"
 			// load 16 bytes, MPSADBW consider just 8+3 chars at the beggining
@@ -310,9 +317,9 @@ char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2) {
 	// n1 == 4, n2 > 4
 	char* result;
 	
-	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
-	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
-	asm volatile (
+	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	__asm__ volatile ("pxor    %%xmm0, %%xmm0" : : );
+	__asm__ volatile (
 		/*** main loop *********************************************************/
 		"0:					\n"
 			// load 16 bytes, we consider just 8+3 chars at the beggining
@@ -356,9 +363,9 @@ char* sse4_strstr_len3(char* s1, int n1, char* s2, int n2) {
 	// n1 == 4, n2 > 4
 	char* result;
 	
-	asm volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
-	asm volatile ("pxor    %%xmm0, %%xmm0" : : );
-	asm volatile (
+	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
+	__asm__ volatile ("pxor    %%xmm0, %%xmm0" : : );
+	__asm__ volatile (
 		/*** main loop *********************************************************/
 		"0:					\n"
 			// load 16 bytes, we consider just 8+3 chars at the beggining
@@ -470,7 +477,7 @@ int main(int argc, char* argv[]) {
 			puts("Lib C");
 			for (i=0; i < iters; i++) {
 				//(unsigned int)strstr((char*)buffer, s1);
-				asm volatile (
+				__asm__ volatile (
 					"movl $buffer,  (%%esp)\n"
 					"movl      %0, 4(%%esp)\n"
 					"call strstr\n"
