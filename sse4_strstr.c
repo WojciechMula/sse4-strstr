@@ -1,5 +1,5 @@
 /*
-	SSE4 string search --- modification of Karp-Rabin algorithm, $Revision: 1.10 $
+	SSE4 string search --- modification of Karp-Rabin algorithm, $Revision: 1.11 $
 	
 	Acceleration of strstr using SSE4 instruction MPSADBW.
 	This program includes one wrapper sse4_strstr around
@@ -17,11 +17,11 @@
 
 	Author: Wojciech Mu³a
 	e-mail: wojciech_mula@poczta.onet.pl
-	www:    http://www.mula.w.pl
+	www:    http://www.republika.pl/wmula/
 	
 	License: BSD
 	
-	initial release 27-05-2008, last update $Date: 2008-06-08 19:00:51 $
+	initial release 27-05-2008, last update $Date: 2008-06-08 23:00:44 $
 */
 
 #include <stdint.h>
