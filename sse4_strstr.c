@@ -1,5 +1,5 @@
 /*
-	SSE4 string search --- modification of Karp-Rabin algorithm, $Revision: 1.9 $
+	SSE4 string search --- modification of Karp-Rabin algorithm, $Revision: 1.10 $
 	
 	Acceleration of strstr using SSE4 instruction MPSADBW.
 	This program includes one wrapper sse4_strstr around
@@ -21,7 +21,7 @@
 	
 	License: BSD
 	
-	initial release 27-05-2008, last update $Date: 2008-06-04 12:45:02 $
+	initial release 27-05-2008, last update $Date: 2008-06-08 19:00:51 $
 */
 
 #include <stdint.h>
@@ -88,6 +88,7 @@ char* sse4_strstr(char* s1, int n1, char* s2, int n2) {
 char* sse4_strstr_any(char* s1, int n1, char* s2, int n2) {
 	// n1 > 4, n2 > 4
 	char* result;
+	uint32_t dummy __attribute__((unused));
 	
 	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
 	__asm__ volatile ("pxor    %%xmm0, %%xmm0" : : );
@@ -170,7 +171,9 @@ char* sse4_strstr_any(char* s1, int n1, char* s2, int n2) {
 		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
 		"4:					\n"
 		"	addl   $24, %%esp		\n" // and finally restore stack frame
-		: "=a" (result)
+		: "=a" (result),
+		  "=S" (dummy),
+		  "=c" (dummy)
 		: "S" (s2),
 		  "c" (n2-n1)
 	);
@@ -181,6 +184,7 @@ char* sse4_strstr_any(char* s1, int n1, char* s2, int n2) {
 
 char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2) {
 	// 4 <= n1 <= 20, n2 > 4
+	uint32_t dummy __attribute__((unused));
 	char* result;
 	
 	__asm__ volatile ("movdqu (%%eax), %%xmm6" : : "a" (mask[n1-5]));
@@ -233,7 +237,9 @@ char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2) {
 
 		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
 		"4:					\n"
-		: "=a" (result)
+		: "=a" (result),
+		  "=S" (dummy),
+		  "=c" (dummy)
 		: "S" (s2),
 		  "c" (n2-n1)
 	);
@@ -245,6 +251,7 @@ char* sse4_strstr_max20(char* s1, int n1, char* s2, int n2) {
 
 char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2) {
 	// 20 <= n1 <= 36, n2 > 4
+	uint32_t dummy __attribute__((unused));
 	char* result;
 	
 	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
@@ -304,7 +311,9 @@ char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2) {
 
 		"	xorl %%eax, %%eax		\n" // s1 not found, return NULL
 		"4:					\n"
-		: "=a" (result)
+		: "=a" (result),
+		  "=S" (dummy),
+		  "=c" (dummy)
 		: "S" (s2),
 		  "c" (n2-n1)
 	);
@@ -315,6 +324,7 @@ char* sse4_strstr_max36(char* s1, int n1, char* s2, int n2) {
 
 char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2) {
 	// n1 == 4, n2 > 4
+	uint32_t dummy __attribute__((unused));
 	char* result;
 	
 	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
@@ -350,7 +360,9 @@ char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2) {
 		"	shrl         $1, %%eax		\n"
 		"	lea -8(%%esi, %%eax), %%eax	\n"
 		"2:					\n"
-		: "=a" (result)
+		: "=a" (result),
+		  "=S" (dummy),
+		  "=c" (dummy)
 		: "S" (s2),
 		  "c" (n2-n1)
 	);
@@ -361,6 +373,7 @@ char* sse4_strstr_len4(char* s1, int n1, char* s2, int n2) {
 
 char* sse4_strstr_len3(char* s1, int n1, char* s2, int n2) {
 	// n1 == 4, n2 > 4
+	uint32_t dummy __attribute__((unused));
 	char* result;
 	
 	__asm__ volatile ("movdqu (%%eax), %%xmm1" : : "a" (s1));
@@ -400,7 +413,9 @@ char* sse4_strstr_len3(char* s1, int n1, char* s2, int n2) {
 		"	shrl         $1, %%eax		\n"
 		"	lea -8(%%esi, %%eax), %%eax	\n"
 		"2:					\n"
-		: "=a" (result)
+		: "=a" (result),
+		  "=S" (dummy),
+		  "=c" (dummy)
 		: "S" (s2),
 		  "c" (n2-n1)
 	);
