@@ -28,7 +28,7 @@ public:
     bool operator()() {
 
         const bool measure_libc      = true;
-        const bool measure_stdstring = false;
+        const bool measure_stdstring = true;
         const bool measure_sse4      = true;
 
         if (measure_libc) {
@@ -55,7 +55,7 @@ public:
                 return s.find(neddle);
             };
 
-            printf("%-20s... ", "std::string");
+            printf("%-20s... ", "std::string::find");
             fflush(stdout);
             measure(find, count);
         }
