@@ -4,7 +4,7 @@
     needle - pointer to another string
     n      - needle length in bytes [!!!]
 */
-size_t avx512f_strfind_gt4(const char* string, size_t count, const char* needle, size_t n) {
+size_t avx512f_strstr_long(const char* string, size_t count, const char* needle, size_t n) {
 
     assert(n > 4);
 
@@ -97,3 +97,50 @@ size_t avx512f_strfind_gt4(const char* string, size_t count, const char* needle,
     return size_t(-1);
 }
 
+
+// ------------------------------------------------------------------------
+
+size_t avx512f_strstr(const char* s, size_t n, const char* neddle, size_t neddle_size) {
+
+    size_t result = std::string::npos;
+
+    if (n < neddle_size) {
+        return result;
+    }
+
+	switch (neddle_size) {
+		case 0:
+			return 0;
+
+		case 1: {
+            const char* res = reinterpret_cast<const char*>(strchr(s, neddle[0]));
+
+			return (res != nullptr) ? res - s : std::string::npos;
+            }
+		case 2:
+		case 3:
+		case 4: {
+			const char* res = reinterpret_cast<const char*>(strstr(s, neddle));
+
+			return (res != nullptr) ? res - s : std::string::npos;
+            }
+
+		default:
+			result = avx512f_strstr_long(s, n, neddle, neddle_size);
+            break;
+    }
+
+
+    if (result <= n - neddle_size) {
+        return result;
+    } else {
+        return std::string::npos;
+    }
+}
+
+// --------------------------------------------------
+
+size_t avx512f_strstr(const std::string& s, const std::string& neddle) {
+
+    return avx512f_strstr(s.data(), s.size(), neddle.data(), neddle.size());
+}

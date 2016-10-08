@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <smmintrin.h>
-#ifdef HAVE_AVX2_INSTRUCTIONS
+#if defined(HAVE_AVX2_INSTRUCTIONS) || defined(HAVE_AVX512F_INSTRUCTIONS)
 #   include <immintrin.h>
 #endif
 
@@ -17,6 +17,9 @@
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
+#endif
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+#   include "avx512f-strstr.cpp"
 #endif
 
 class UnitTests final {
@@ -89,6 +92,18 @@ int main() {
         };
 
         if (!tests.run("AVX2", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+#endif
+
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+    {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return avx512f_strstr(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("AVX512F", wrp)) {
             ret = EXIT_FAILURE;
         }
     }

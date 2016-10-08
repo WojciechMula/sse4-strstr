@@ -3,17 +3,20 @@
 FLAGS=-std=c++11 -O3 -Wall -Wextra -pedantic -I.
 FLAGS_SSE4=$(FLAGS) -msse4.1 
 FLAGS_AVX2=$(FLAGS) -mavx2 -DHAVE_AVX2_INSTRUCTIONS
+FLAGS_AVX512=$(FLAGS) -mavx512f -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS
 
 DEPS=utils/ansi.cpp utils/bits.cpp
 DEPS_SSE4=sse4-strstr.cpp utils/sse.cpp $(DEPS)
 DEPS_AVX2=avx2-strstr.cpp utils/avx2.cpp $(DEPS_SSE4)
+DEPS_AVX512=avx512f-strstr.cpp $(DESP_AVX2)
 
 ALL=validate \
     speedup \
     unittests \
     validate_avx2 \
     speedup_avx2 \
-    unittests_avx2
+    unittests_avx2 \
+    unittests_avx512
 
 all: $(ALL)
 
@@ -34,6 +37,9 @@ speedup_avx2: src/speedup.cpp src/application_base.cpp $(DEPS_AVX2)
 
 unittests_avx2: src/unittests.cpp $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/unittests.cpp -o $@
+
+unittests_avx512: src/unittests.cpp $(DEPS_AVX512)
+	$(CXX) $(FLAGS_AVX512) src/unittests.cpp -o $@
 
 data/i386.txt:
 	wget http://css.csail.mit.edu/6.858/2013/readings/i386.txt

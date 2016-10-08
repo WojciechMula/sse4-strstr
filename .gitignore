@@ -6,5 +6,9 @@ speedup_avx2
 unittests_avx2
 validate_avx2
 
+speedup_avx512
+unittests_avx512
+validate_avx512
+
 data/i386.txt
 data/words
