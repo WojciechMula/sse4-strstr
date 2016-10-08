@@ -19,7 +19,9 @@
 #   include "avx2-strstr.cpp"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
+#   include <utils/avx512.cpp>
 #   include "avx512f-strstr.cpp"
+#   include "avx512f-strstr-v2.cpp"
 #endif
 
 class UnitTests final {
@@ -75,7 +77,16 @@ int main() {
 
     puts("running unit tests");
 
-    {
+    bool test_sse41      = true;
+#ifdef HAVE_AVX2_INSTRUCTIONS
+    bool test_avx2       = true;
+#endif
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+    bool test_avx512f    = true;
+    bool test_avx512f_v2 = true;
+#endif
+
+    if (test_sse41) {
         auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
             return sse4_strstr(s1, n1, s2, n2);
         };
@@ -86,7 +97,7 @@ int main() {
     }
 
 #ifdef HAVE_AVX2_INSTRUCTIONS
-    {
+    if (test_avx2) {
         auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
             return avx2_strstr(s1, n1, s2, n2);
         };
@@ -98,12 +109,22 @@ int main() {
 #endif
 
 #ifdef HAVE_AVX512F_INSTRUCTIONS
-    {
+    if (test_avx512f) {
         auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
             return avx512f_strstr(s1, n1, s2, n2);
         };
 
         if (!tests.run("AVX512F", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+    if (test_avx512f_v2) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return avx512f_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("AVX512F (v2)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }
