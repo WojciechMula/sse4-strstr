@@ -1,0 +1,17 @@
+$ for m in 1 2 3; do make run_avx2; done
+./speedup_avx2 data/i386.txt data/words 
+std::strstr         ... reference result = 8108076510, time =   0.662665 s
+std::string::find   ... reference result = 8108076510, time =   6.540973 s
+SSE4                ... reference result = 8108076510, time =   0.639285 s
+AVX2                ... reference result = 8108076510, time =   0.464787 s
+./speedup_avx2 data/i386.txt data/words 
+std::strstr         ... reference result = 8108076510, time =   0.661924 s
+std::string::find   ... reference result = 8108076510, time =   6.542423 s
+SSE4                ... reference result = 8108076510, time =   0.638893 s
+AVX2                ... reference result = 8108076510, time =   0.463458 s
+./speedup_avx2 data/i386.txt data/words 
+std::strstr         ... reference result = 8108076510, time =   0.662045 s
+std::string::find   ... reference result = 8108076510, time =   6.546880 s
+SSE4                ... reference result = 8108076510, time =   0.638957 s
+AVX2                ... reference result = 8108076510, time =   0.463573 s
+
