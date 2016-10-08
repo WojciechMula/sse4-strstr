@@ -11,9 +11,11 @@
 #   include <immintrin.h>
 #endif
 
+#include "common.h"
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "sse4-strstr.cpp"
+#include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
@@ -40,6 +42,7 @@ public:
 
         const bool measure_libc       = true;
         const bool measure_stdstring  = true;
+        const bool measure_sse2       = true;
         const bool measure_sse4       = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
         const bool measure_avx2       = true;
@@ -74,6 +77,18 @@ public:
             };
 
             printf("%-20s... ", "std::string::find");
+            fflush(stdout);
+            measure(find, count);
+        }
+
+        if (measure_sse2) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return sse2_strstr_v2(s, neddle);
+            };
+
+            printf("%-20s... ", "SSE2 (v2)");
             fflush(stdout);
             measure(find, count);
         }

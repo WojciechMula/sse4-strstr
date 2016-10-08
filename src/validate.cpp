@@ -12,9 +12,11 @@
 
 // ------------------------------------------------------------------------
 
+#include "common.h"
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "sse4-strstr.cpp"
+#include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"

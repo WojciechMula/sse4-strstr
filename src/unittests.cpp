@@ -10,10 +10,12 @@
 #   include <immintrin.h>
 #endif
 
+#include "common.h"
 #include <utils/ansi.cpp>
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "sse4-strstr.cpp"
+#include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
@@ -78,6 +80,7 @@ int main() {
     puts("running unit tests");
 
     bool test_sse41      = true;
+    bool test_sse_v2     = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
     bool test_avx2       = true;
 #endif
@@ -85,6 +88,16 @@ int main() {
     bool test_avx512f    = true;
     bool test_avx512f_v2 = true;
 #endif
+
+    if (test_sse_v2) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return sse2_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("SSE2 (v2)", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
 
     if (test_sse41) {
         auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
