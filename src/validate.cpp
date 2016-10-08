@@ -6,12 +6,19 @@
 #include <vector>
 
 #include <smmintrin.h>
+#ifdef HAVE_AVX2_INSTRUCTIONS
+#   include <immintrin.h>
+#endif
 
 // ------------------------------------------------------------------------
 
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "sse4-strstr.cpp"
+#ifdef HAVE_AVX2_INSTRUCTIONS
+#   include <utils/avx2.cpp>
+#   include "avx2-strstr.cpp"
+#endif
 
 // ------------------------------------------------------------------------
 
@@ -31,22 +38,38 @@ public:
             const auto& word = words[i];
 
             const auto reference = file.find(word);
-            const auto result = sse4_strstr(file, word);
+            const auto result_sse4 = sse4_strstr(file, word);
+#ifdef HAVE_AVX2_INSTRUCTIONS
+            const auto result_avx2 = avx2_strstr(file, word);
+#endif
     
             if (i % 100 == 0) {
                 print_progress(i, n);
             }
 
-            if (reference != result) {
+            if (reference != result_sse4) {
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
                 printf("%s: std::find result = %lu, sse4_string = %lu\n",
-                    msg.data(), reference, result);
+                    msg.data(), reference, result_sse4);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
 
                 return false;
             }
+
+#ifdef HAVE_AVX2_INSTRUCTIONS
+            if (reference != result_avx2) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, avx2_string = %lu\n",
+                    msg.data(), reference, result_avx2);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+#endif
         }
 
         print_progress(n, n);
