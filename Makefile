@@ -53,7 +53,7 @@ test_avx2: unittests_avx2 validate_avx2 data/words data/i386.txt
 	./unittests_avx2
 	./validate_avx2 data/i386.txt data/words
 
-run_avx2: speedup data/words data/i386.txt
+run_avx2: speedup_avx2 data/words data/i386.txt
 	./speedup_avx2 data/i386.txt data/words 
 
 clean:
