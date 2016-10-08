@@ -20,6 +20,7 @@
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 #   include "avx512f-strstr.cpp"
+#   include "avx512f-strstr-v2.cpp"
 #endif
 
 // ------------------------------------------------------------------------
@@ -37,14 +38,15 @@ public:
 
     bool operator()() {
 
-        const bool measure_libc      = true;
-        const bool measure_stdstring = true;
-        const bool measure_sse4      = true;
+        const bool measure_libc       = true;
+        const bool measure_stdstring  = true;
+        const bool measure_sse4       = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
-        const bool measure_avx2      = true;
+        const bool measure_avx2       = true;
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
-        const bool measure_avx512f   = true;
+        const bool measure_avx512f    = true;
+        const bool measure_avx512f_v2 = true;
 #endif
 
         if (measure_libc) {
@@ -111,6 +113,18 @@ public:
             };
 
             printf("%-20s... ", "AVX512F");
+            fflush(stdout);
+            measure(find, count);
+        }
+
+        if (measure_avx512f_v2) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return avx512f_strstr_v2(s, neddle);
+            };
+
+            printf("%-20s... ", "AVX512F (v2)");
             fflush(stdout);
             measure(find, count);
         }
