@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <smmintrin.h>
-#ifdef HAVE_AVX2_INSTRUCTIONS
+#if defined(HAVE_AVX2_INSTRUCTIONS) || defined(HAVE_AVX512F_INSTRUCTIONS)
 #   include <immintrin.h>
 #endif
 
@@ -18,6 +18,9 @@
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
+#endif
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+#   include "avx512f-strstr.cpp"
 #endif
 
 // ------------------------------------------------------------------------
@@ -42,6 +45,9 @@ public:
 #ifdef HAVE_AVX2_INSTRUCTIONS
             const auto result_avx2 = avx2_strstr(file, word);
 #endif
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+            const auto result_avx512f = avx512f_strstr(file, word);
+#endif
     
             if (i % 100 == 0) {
                 print_progress(i, n);
@@ -64,6 +70,19 @@ public:
                 const auto msg = ansi::seq("ERROR", ansi::RED);
                 printf("%s: std::find result = %lu, avx2_string = %lu\n",
                     msg.data(), reference, result_avx2);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+#endif
+
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+            if (reference != result_avx512f) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, avx512f_string = %lu\n",
+                    msg.data(), reference, result_avx512f);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
 

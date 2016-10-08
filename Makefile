@@ -16,6 +16,7 @@ ALL=validate \
     validate_avx2 \
     speedup_avx2 \
     unittests_avx2 \
+    validate_avx512 \
     unittests_avx512
 
 all: $(ALL)
@@ -37,6 +38,9 @@ speedup_avx2: src/speedup.cpp src/application_base.cpp $(DEPS_AVX2)
 
 unittests_avx2: src/unittests.cpp $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/unittests.cpp -o $@
+
+validate_avx512: src/validate.cpp src/application_base.cpp $(DEPS_AVX512)
+	$(CXX) $(FLAGS_AVX512) src/validate.cpp -o $@
 
 unittests_avx512: src/unittests.cpp $(DEPS_AVX512)
 	$(CXX) $(FLAGS_AVX512) src/unittests.cpp -o $@
@@ -61,6 +65,10 @@ test_avx2: unittests_avx2 validate_avx2 data/words data/i386.txt
 
 run_avx2: speedup_avx2 data/words data/i386.txt
 	./speedup_avx2 data/i386.txt data/words 
+
+test_avx512: unittests_avx512 validate_avx512 data/words data/i386.txt
+	./unittests_avx512
+	./validate_avx512 data/i386.txt data/words
 
 clean:
 	rm -f $(ALL)
