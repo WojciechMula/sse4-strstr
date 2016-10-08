@@ -21,6 +21,7 @@
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 #   include "avx512f-strstr.cpp"
+#   include "avx512f-strstr-v2.cpp"
 #endif
 
 // ------------------------------------------------------------------------
@@ -47,6 +48,7 @@ public:
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
             const auto result_avx512f = avx512f_strstr(file, word);
+            const auto result_avx512f_v2 = avx512f_strstr_v2(file, word);
 #endif
     
             if (i % 100 == 0) {
@@ -83,6 +85,17 @@ public:
                 const auto msg = ansi::seq("ERROR", ansi::RED);
                 printf("%s: std::find result = %lu, avx512f_string = %lu\n",
                     msg.data(), reference, result_avx512f);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+
+            if (reference != result_avx512f_v2) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, avx512f_v2_string = %lu\n",
+                    msg.data(), reference, result_avx512f_v2);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
 
