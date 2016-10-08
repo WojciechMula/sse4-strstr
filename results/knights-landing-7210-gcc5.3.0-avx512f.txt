@@ -1,0 +1,8 @@
+./speedup_avx512 data/i386.txt data/words 
+std::strstr         ... reference result = 8108076510, time =   4.957334 s
+std::string::find   ... reference result = 8108076510, time =  36.948564 s
+SSE4                ... reference result = 8108076510, time =  19.347955 s
+AVX2                ... reference result = 8108076510, time =  13.166354 s
+AVX512F             ... reference result = 8108076510, time =   2.342400 s
+AVX512F (v2)        ... reference result = 8108076510, time =   2.394064 s
+
