@@ -21,7 +21,7 @@ validate: src/validate.cpp src/application_base.cpp $(DEPS_SSE4)
 	$(CXX) $(FLAGS_SSE4) src/validate.cpp -o $@
 
 speedup: src/speedup.cpp src/application_base.cpp $(DEPS_SSE4)
-	$(CXX) $(FLAGS_SSE4) src/speedup.cpp -o $@
+	$(CXX) $(FLAGS_SSE4) -DNDEBUG src/speedup.cpp -o $@
 
 unittests: src/unittests.cpp $(DEPS_SSE4)
 	$(CXX) $(FLAGS_SSE4) src/unittests.cpp -o $@
@@ -30,7 +30,7 @@ validate_avx2: src/validate.cpp src/application_base.cpp $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/validate.cpp -o $@
 
 speedup_avx2: src/speedup.cpp src/application_base.cpp $(DEPS_AVX2)
-	$(CXX) $(FLAGS_AVX2) src/speedup.cpp -o $@
+	$(CXX) $(FLAGS_AVX2) -DNDEBUG  src/speedup.cpp -o $@
 
 unittests_avx2: src/unittests.cpp $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/unittests.cpp -o $@

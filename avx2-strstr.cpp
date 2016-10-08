@@ -30,15 +30,13 @@ size_t avx2_strstr_long(const char* s, size_t n, const char* neddle, size_t nedd
 
         while (mask != 0) {
 
-            const auto mask1    = bits::clear_leftmost_set(mask);
-            const auto leftmost = mask & ~mask1;
-            const auto bitpos   = bits::get_first_bit_set(leftmost)/2;
+            const auto bitpos   = bits::get_first_bit_set(mask)/2;
 
             if (memcmp(s + i + bitpos + 4, neddle + 4, neddle_size - 4) == 0) {
                 return i + bitpos;
             }
 
-            mask = mask1;
+            mask = bits::clear_leftmost_set(mask);
         }
     }
 

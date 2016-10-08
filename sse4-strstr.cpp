@@ -17,15 +17,13 @@ size_t sse4_strstr_long(const char* s, size_t n, const char* neddle, size_t nedd
 
         while (mask != 0) {
 
-            const auto mask1    = bits::clear_leftmost_set(mask);
-            const auto leftmost = mask & ~mask1;
-            const auto bitpos   = bits::get_first_bit_set(leftmost)/2;
+            const auto bitpos = bits::get_first_bit_set(mask)/2;
 
             if (memcmp(s + i + bitpos + 4, neddle + 4, neddle_size - 4) == 0) {
                 return i + bitpos;
             }
 
-            mask = mask1;
+            mask = bits::clear_leftmost_set(mask);
         }
     }
 
@@ -52,9 +50,7 @@ size_t sse4_strstr_max20(const char* s, size_t n, const char* neddle, size_t ned
 
         while (mask != 0) {
 
-            const auto mask1    = bits::clear_leftmost_set(mask);
-            const auto leftmost = mask & ~mask1;
-            const auto bitpos   = bits::get_first_bit_set(leftmost)/2;
+            const auto bitpos = bits::get_first_bit_set(mask)/2;
 
             const __m128i str = sse::load(s + i + bitpos + 4);
             const __m128i cmp = _mm_cmpeq_epi8(str, suffix);
@@ -64,7 +60,7 @@ size_t sse4_strstr_max20(const char* s, size_t n, const char* neddle, size_t ned
                 return i + bitpos;
             }
 
-            mask = mask1;
+            mask = bits::clear_leftmost_set(mask);
         }
     }
 
@@ -92,9 +88,7 @@ size_t sse4_strstr_max36(const char* s, size_t n, const char* neddle, size_t ned
 
         while (mask != 0) {
 
-            const auto mask1    = bits::clear_leftmost_set(mask);
-            const auto leftmost = mask & ~mask1;
-            const auto bitpos   = bits::get_first_bit_set(leftmost)/2;
+            const auto bitpos = bits::get_first_bit_set(mask)/2;
 
             const __m128i c1 = _mm_cmpeq_epi8(sse::load(s + i + bitpos + 4), suffix1);
             const __m128i c2 = _mm_cmpeq_epi8(sse::load(s + i + bitpos + 16 + 4), suffix2);
@@ -107,7 +101,7 @@ size_t sse4_strstr_max36(const char* s, size_t n, const char* neddle, size_t ned
                 return i + bitpos;
             }
 
-            mask = mask1;
+            mask = bits::clear_leftmost_set(mask);
         }
     }
 
