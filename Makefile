@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all clean
 
 FLAGS=-std=c++11 -O3 -Wall -Wextra -pedantic -I.
 FLAGS_SSE4=$(FLAGS) -msse4.1 
@@ -47,6 +47,13 @@ test: unittests validate data/words data/i386.txt
 
 run: speedup data/words data/i386.txt
 	./speedup data/i386.txt data/words 
+
+test_avx2: unittests_avx2 validate_avx2 data/words data/i386.txt
+	./unittests_avx2
+	./validate_avx2 data/i386.txt data/words
+
+run_avx2: speedup data/words data/i386.txt
+	./speedup_avx2 data/i386.txt data/words 
 
 clean:
 	rm -f $(ALL)
