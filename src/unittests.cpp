@@ -6,19 +6,26 @@
 #include <vector>
 
 #include <smmintrin.h>
+#ifdef HAVE_AVX2_INSTRUCTIONS
+#   include <immintrin.h>
+#endif
 
 #include <utils/ansi.cpp>
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "sse4-strstr.cpp"
-
+#ifdef HAVE_AVX2_INSTRUCTIONS
+#   include <utils/avx2.cpp>
+#   include "avx2-strstr.cpp"
+#endif
 
 class UnitTests final {
 
 public:
-    bool operator()() {
+    template <typename STRSTR>
+    bool run(const char* name, STRSTR strstr_function) {
 
-        std::printf("running unit tests... ");
+        std::printf("%s... ", name);
         std::fflush(stdout);
 
         for (size_t size = 1; size < 64; size++) {
@@ -35,7 +42,7 @@ public:
                     const std::string suffix(k, '.');
                     const std::string str = prefix + neddle + suffix;
                     
-                    const auto result = sse4_strstr(str.data(), str.size(), neddle.data(), neddle.size());
+                    const auto result = strstr_function(str.data(), str.size(), neddle.data(), neddle.size());
 
                     if (result != n) {
                         printf("%s\n", ansi::seq("FAILED", ansi::RED).c_str());
@@ -61,7 +68,32 @@ public:
 int main() {
 
     UnitTests tests;
+    int ret = EXIT_SUCCESS;
 
-    return tests() ? EXIT_SUCCESS : EXIT_FAILURE;
+    puts("running unit tests");
+
+    {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return sse4_strstr(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("SSE4.1", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+#ifdef HAVE_AVX2_INSTRUCTIONS
+    {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return avx2_strstr(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("AVX2", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+#endif
+
+    return ret;
 }
 

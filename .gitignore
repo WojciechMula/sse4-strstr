@@ -2,5 +2,9 @@ speedup
 unittests
 validate
 
+speedup_avx2
+unittests_avx2
+validate_avx2
+
 data/i386.txt
 data/words
