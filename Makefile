@@ -36,7 +36,8 @@ unittests_avx2: src/unittests.cpp $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/unittests.cpp -o $@
 
 data/i386.txt:
-	wget http://css.csail.mit.edu/6.858/2013/readings/i386.txt data/i386.txt
+	wget http://css.csail.mit.edu/6.858/2013/readings/i386.txt
+	mv i386.txt data/i386.txt
 
 data/words: data/i386.txt
 	sh make_words.sh $^ $@
