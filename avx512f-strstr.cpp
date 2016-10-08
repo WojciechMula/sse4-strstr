@@ -1,25 +1,27 @@
 /*
     string - pointer to the string
-    count  - string length in 64-byte blocks [!!!]
+    n      - string length in bytes
     needle - pointer to another string
-    n      - needle length in bytes [!!!]
+    n      - needle length in bytes
 */
-size_t avx512f_strstr_long(const char* string, size_t count, const char* needle, size_t n) {
+size_t avx512f_strstr_long(const char* string, size_t n, const char* needle, size_t k) {
 
-    assert(n > 4);
+    assert(n > 0);
+    assert(k > 4);
 
     __m512i curr;
     __m512i next;
     __m512i v0, v1, v2, v3;
 
     char* haystack = const_cast<char*>(string);
+    char* last     = haystack + n;
 
     const uint32_t prf   = *(uint32_t*)needle; // the first 4 bytes of needle
     const __m512i prefix = _mm512_set1_epi32(prf);
 
     next = _mm512_loadu_si512(haystack);
 
-    for (size_t i=0; i < count; i++) {
+    for (/**/; haystack < last; haystack += 64) {
 
         curr = next;
         next = _mm512_loadu_si512(haystack + 64);
@@ -54,7 +56,7 @@ size_t avx512f_strstr_long(const char* string, size_t count, const char* needle,
                 int pos = __builtin_ctz(m0) * 4 + 0;
                 m0 = m0 & (m0 - 1);
 
-                if (pos < index && memcmp(haystack + pos + 4, needle + 4, n - 4) == 0) {
+                if (pos < index && memcmp(haystack + pos + 4, needle + 4, k - 4) == 0) {
                     index = pos;
                 }
             }
@@ -63,7 +65,7 @@ size_t avx512f_strstr_long(const char* string, size_t count, const char* needle,
                 int pos = __builtin_ctz(m1) * 4 + 1;
                 m1 = m1 & (m1 - 1);
 
-                if (pos < index && memcmp(haystack + pos + 4, needle + 4, n - 4) == 0) {
+                if (pos < index && memcmp(haystack + pos + 4, needle + 4, k - 4) == 0) {
                     index = pos;
                 }
             }
@@ -72,7 +74,7 @@ size_t avx512f_strstr_long(const char* string, size_t count, const char* needle,
                 int pos = __builtin_ctz(m2) * 4 + 2;
                 m2 = m2 & (m2 - 1);
 
-                if (pos < index && memcmp(haystack + pos + 4, needle + 4, n - 4) == 0) {
+                if (pos < index && memcmp(haystack + pos + 4, needle + 4, k - 4) == 0) {
                     index = pos;
                 }
             }
@@ -81,7 +83,7 @@ size_t avx512f_strstr_long(const char* string, size_t count, const char* needle,
                 int pos = __builtin_ctz(m3) * 4 + 3;
                 m3 = m3 & (m3 - 1);
 
-                if (pos < index && memcmp(haystack + pos + 4, needle + 4, n - 4) == 0) {
+                if (pos < index && memcmp(haystack + pos + 4, needle + 4, k - 4) == 0) {
                     index = pos;
                 }
             }
@@ -90,8 +92,6 @@ size_t avx512f_strstr_long(const char* string, size_t count, const char* needle,
         if (index < 64) {
             return (haystack - string) + index;
         }
-
-        haystack += 64;
     }
 
     return size_t(-1);
