@@ -12,6 +12,7 @@ ALL=validate \
     speedup \
     unittests \
     validate_avx2 \
+    speedup_avx2 \
     unittests_avx2
 
 all: $(ALL)
@@ -27,6 +28,9 @@ unittests: src/unittests.cpp $(DEPS_SSE4)
 
 validate_avx2: src/validate.cpp src/application_base.cpp $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/validate.cpp -o $@
+
+speedup_avx2: src/speedup.cpp src/application_base.cpp $(DEPS_AVX2)
+	$(CXX) $(FLAGS_AVX2) src/speedup.cpp -o $@
 
 unittests_avx2: src/unittests.cpp $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/unittests.cpp -o $@

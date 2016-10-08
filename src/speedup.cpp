@@ -7,10 +7,17 @@
 #include <chrono>
 
 #include <smmintrin.h>
+#ifdef HAVE_AVX2_INSTRUCTIONS
+#   include <immintrin.h>
+#endif
 
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "sse4-strstr.cpp"
+#ifdef HAVE_AVX2_INSTRUCTIONS
+#   include <utils/avx2.cpp>
+#   include "avx2-strstr.cpp"
+#endif
 
 // ------------------------------------------------------------------------
 
@@ -30,6 +37,9 @@ public:
         const bool measure_libc      = true;
         const bool measure_stdstring = true;
         const bool measure_sse4      = true;
+#ifdef HAVE_AVX2_INSTRUCTIONS
+        const bool measure_avx2      = true;
+#endif
 
         if (measure_libc) {
 
@@ -72,6 +82,20 @@ public:
             measure(find, count);
         }
 
+#ifdef HAVE_AVX2_INSTRUCTIONS
+        if (measure_avx2) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return avx2_strstr(s, neddle);
+            };
+
+            printf("%-20s... ", "AVX2");
+            fflush(stdout);
+            measure(find, count);
+        }
+#endif
+
         return true;
     }
 
@@ -79,7 +103,15 @@ public:
     void print_help(const char* progname) {
         std::printf("%s file words\n", progname);
         std::puts("");
-        std::puts("Measure speed of std::strstr, std::string::find and SSE4 procedure.");
+        std::puts(
+            "Measure speed of following procedures: "
+              "std::strstr"
+            ", std::string::find"
+            ", SSE4"
+#ifdef HAVE_AVX2_INSTRUCTIONS
+            ", AVX2"
+#endif
+        );
         std::puts("");
         std::puts("Parameters:");
         std::puts("");
