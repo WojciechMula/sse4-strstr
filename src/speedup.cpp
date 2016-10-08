@@ -7,7 +7,7 @@
 #include <chrono>
 
 #include <smmintrin.h>
-#ifdef HAVE_AVX2_INSTRUCTIONS
+#if defined(HAVE_AVX2_INSTRUCTIONS) || defined(HAVE_AVX512F_INSTRUCTIONS)
 #   include <immintrin.h>
 #endif
 
@@ -17,6 +17,9 @@
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
+#endif
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+#   include "avx512f-strstr.cpp"
 #endif
 
 // ------------------------------------------------------------------------
@@ -39,6 +42,9 @@ public:
         const bool measure_sse4      = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
         const bool measure_avx2      = true;
+#endif
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+        const bool measure_avx512f   = true;
 #endif
 
         if (measure_libc) {
@@ -96,6 +102,20 @@ public:
         }
 #endif
 
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+        if (measure_avx512f) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return avx512f_strstr(s, neddle);
+            };
+
+            printf("%-20s... ", "AVX512F");
+            fflush(stdout);
+            measure(find, count);
+        }
+#endif
+
         return true;
     }
 
@@ -110,6 +130,9 @@ public:
             ", SSE4"
 #ifdef HAVE_AVX2_INSTRUCTIONS
             ", AVX2"
+#endif
+#ifdef HAVE_AVX512F_INSTRUCTIONS
+            ", AVX512F"
 #endif
         );
         std::puts("");
