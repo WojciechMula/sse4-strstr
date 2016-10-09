@@ -44,6 +44,7 @@ public:
             const auto& word = words[i];
 
             const auto reference = file.find(word);
+            const auto result_sse2 = sse2_strstr_v2(file, word);
             const auto result_sse4 = sse4_strstr(file, word);
 #ifdef HAVE_AVX2_INSTRUCTIONS
             const auto result_avx2 = avx2_strstr(file, word);
@@ -55,6 +56,17 @@ public:
     
             if (i % 100 == 0) {
                 print_progress(i, n);
+            }
+
+            if (reference != result_sse2) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, sse2_string = %lu\n",
+                    msg.data(), reference, result_sse2);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
             }
 
             if (reference != result_sse4) {

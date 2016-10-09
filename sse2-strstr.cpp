@@ -16,7 +16,7 @@ size_t FORCE_INLINE sse2_strstr_anysize(const char* s, size_t n, const char* nee
         const __m128i eq_first = _mm_cmpeq_epi8(first, block_first);
         const __m128i eq_last  = _mm_cmpeq_epi8(last, block_last);
 
-        uint16_t mask = _mm_movemask_epi8(_mm_or_si128(eq_first, eq_last));
+        uint16_t mask = _mm_movemask_epi8(_mm_and_si128(eq_first, eq_last));
 
         while (mask != 0) {
 
