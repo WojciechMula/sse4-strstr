@@ -19,6 +19,7 @@
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
+#   include "avx2-strstr-v2.cpp"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 #   include <utils/avx512.cpp>
@@ -83,6 +84,7 @@ int main() {
     bool test_sse_v2     = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
     bool test_avx2       = true;
+    bool test_avx2_v2    = true;
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
     bool test_avx512f    = true;
@@ -116,6 +118,16 @@ int main() {
         };
 
         if (!tests.run("AVX2", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+    if (test_avx2_v2) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return avx2_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("AVX2 (v2)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }

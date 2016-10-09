@@ -20,6 +20,7 @@
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
+#   include "avx2-strstr-v2.cpp"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 #   include "avx512f-strstr.cpp"
@@ -47,7 +48,8 @@ public:
             const auto result_sse2 = sse2_strstr_v2(file, word);
             const auto result_sse4 = sse4_strstr(file, word);
 #ifdef HAVE_AVX2_INSTRUCTIONS
-            const auto result_avx2 = avx2_strstr(file, word);
+            const auto result_avx2    = avx2_strstr(file, word);
+            const auto result_avx2_v2 = avx2_strstr_v2(file, word);
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
             const auto result_avx512f = avx512f_strstr(file, word);

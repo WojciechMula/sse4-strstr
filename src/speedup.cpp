@@ -19,6 +19,7 @@
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
+#   include "avx2-strstr-v2.cpp"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 #   include "avx512f-strstr.cpp"
@@ -46,6 +47,7 @@ public:
         const bool measure_sse4       = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
         const bool measure_avx2       = true;
+        const bool measure_avx2_v2    = true;
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
         const bool measure_avx512f    = true;
@@ -117,6 +119,18 @@ public:
             fflush(stdout);
             measure(find, count);
         }
+
+        if (measure_avx2_v2) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return avx2_strstr_v2(s, neddle);
+            };
+
+            printf("%-20s... ", "AVX2 (v2)");
+            fflush(stdout);
+            measure(find, count);
+        }
 #endif
 
 #ifdef HAVE_AVX512F_INSTRUCTIONS
@@ -156,12 +170,15 @@ public:
             "Measure speed of following procedures: "
               "std::strstr"
             ", std::string::find"
+            ", SSE2"
             ", SSE4"
 #ifdef HAVE_AVX2_INSTRUCTIONS
             ", AVX2"
+            ", AVX2 (v2)"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
             ", AVX512F"
+            ", AVX512F (v2)"
 #endif
         );
         std::puts("");
