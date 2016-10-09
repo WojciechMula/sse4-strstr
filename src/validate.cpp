@@ -93,6 +93,17 @@ public:
 
                 return false;
             }
+
+            if (reference != result_avx2_v2) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, avx2_string_v2 = %lu\n",
+                    msg.data(), reference, result_avx2_v2);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
 #endif
 
 #ifdef HAVE_AVX512F_INSTRUCTIONS

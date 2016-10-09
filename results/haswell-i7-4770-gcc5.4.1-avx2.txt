@@ -1,17 +1,22 @@
 $ for m in 1 2 3; do make run_avx2; done
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.483906 s
-std::string::find   ... reference result = 8108076510, time =   6.071190 s
-SSE4                ... reference result = 8108076510, time =   0.826688 s
-AVX2                ... reference result = 8108076510, time =   0.565601 s
+std::strstr         ... reference result = 8108076510, time =   0.483780 s
+std::string::find   ... reference result = 8108076510, time =   6.070069 s
+SSE2 (v2)           ... reference result = 8108076510, time =   0.932139 s
+SSE4                ... reference result = 8108076510, time =   0.826556 s
+AVX2                ... reference result = 8108076510, time =   0.565684 s
+AVX2 (v2)           ... reference result = 8108076510, time =   0.434516 s
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.485481 s
-std::string::find   ... reference result = 8108076510, time =   6.067275 s
-SSE4                ... reference result = 8108076510, time =   0.826781 s
-AVX2                ... reference result = 8108076510, time =   0.565931 s
+std::strstr         ... reference result = 8108076510, time =   0.485259 s
+std::string::find   ... reference result = 8108076510, time =   6.064927 s
+SSE2 (v2)           ... reference result = 8108076510, time =   0.933404 s
+SSE4                ... reference result = 8108076510, time =   0.826721 s
+AVX2                ... reference result = 8108076510, time =   0.565781 s
+AVX2 (v2)           ... reference result = 8108076510, time =   0.433000 s
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.484120 s
-std::string::find   ... reference result = 8108076510, time =   6.069685 s
-SSE4                ... reference result = 8108076510, time =   0.826585 s
-AVX2                ... reference result = 8108076510, time =   0.565660 s
-
+std::strstr         ... reference result = 8108076510, time =   0.483888 s
+std::string::find   ... reference result = 8108076510, time =   6.077800 s
+SSE2 (v2)           ... reference result = 8108076510, time =   0.933052 s
+SSE4                ... reference result = 8108076510, time =   0.826588 s
+AVX2                ... reference result = 8108076510, time =   0.565685 s
+AVX2 (v2)           ... reference result = 8108076510, time =   0.435124 s

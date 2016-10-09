@@ -1,8 +1,28 @@
+$ for f in 1 2 3; do make run_avx512; done
 ./speedup_avx512 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   4.957334 s
-std::string::find   ... reference result = 8108076510, time =  36.948564 s
-SSE4                ... reference result = 8108076510, time =  19.347955 s
-AVX2                ... reference result = 8108076510, time =  13.166354 s
-AVX512F             ... reference result = 8108076510, time =   2.342400 s
-AVX512F (v2)        ... reference result = 8108076510, time =   2.394064 s
-
+std::strstr         ... reference result = 8108076510, time =   4.949655 s
+std::string::find   ... reference result = 8108076510, time =  36.925054 s
+SSE2 (v2)           ... reference result = 8108076510, time =   8.685200 s
+SSE4                ... reference result = 8108076510, time =  19.340828 s
+AVX2                ... reference result = 8108076510, time =  13.157222 s
+AVX2 (v2)           ... reference result = 8108076510, time =   4.804060 s
+AVX512F             ... reference result = 8108076510, time =   2.331236 s
+AVX512F (v2)        ... reference result = 8108076510, time =   2.380025 s
+./speedup_avx512 data/i386.txt data/words 
+std::strstr         ... reference result = 8108076510, time =   4.948516 s
+std::string::find   ... reference result = 8108076510, time =  36.906493 s
+SSE2 (v2)           ... reference result = 8108076510, time =   8.684476 s
+SSE4                ... reference result = 8108076510, time =  19.328550 s
+AVX2                ... reference result = 8108076510, time =  13.148755 s
+AVX2 (v2)           ... reference result = 8108076510, time =   4.805711 s
+AVX512F             ... reference result = 8108076510, time =   2.336732 s
+AVX512F (v2)        ... reference result = 8108076510, time =   2.386093 s
+./speedup_avx512 data/i386.txt data/words 
+std::strstr         ... reference result = 8108076510, time =   4.950664 s
+std::string::find   ... reference result = 8108076510, time =  36.918470 s
+SSE2 (v2)           ... reference result = 8108076510, time =   8.691588 s
+SSE4                ... reference result = 8108076510, time =  19.335291 s
+AVX2                ... reference result = 8108076510, time =  13.152188 s
+AVX2 (v2)           ... reference result = 8108076510, time =   4.806937 s
+AVX512F             ... reference result = 8108076510, time =   2.332816 s
+AVX512F (v2)        ... reference result = 8108076510, time =   2.382802 s
