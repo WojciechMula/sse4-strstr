@@ -1,9 +1,9 @@
-size_t sse4_strstr_long(const char* s, size_t n, const char* neddle, size_t neddle_size) {
+size_t sse4_strstr_long(const char* s, size_t n, const char* needle, size_t needle_size) {
     
-    assert(neddle_size > 4);
+    assert(needle_size > 4);
     assert(n > 0);
 
-    const __m128i prefix = _mm_loadu_si128(reinterpret_cast<const __m128i*>(neddle));
+    const __m128i prefix = _mm_loadu_si128(reinterpret_cast<const __m128i*>(needle));
     const __m128i zeros  = _mm_setzero_si128();
 
     for (size_t i = 0; i < n; i += 8) {
@@ -19,7 +19,7 @@ size_t sse4_strstr_long(const char* s, size_t n, const char* neddle, size_t nedd
 
             const auto bitpos = bits::get_first_bit_set(mask)/2;
 
-            if (memcmp(s + i + bitpos + 4, neddle + 4, neddle_size - 4) == 0) {
+            if (memcmp(s + i + bitpos + 4, needle + 4, needle_size - 4) == 0) {
                 return i + bitpos;
             }
 
@@ -32,12 +32,12 @@ size_t sse4_strstr_long(const char* s, size_t n, const char* neddle, size_t nedd
 
 // ------------------------------------------------------------------------
 
-size_t sse4_strstr_max20(const char* s, size_t n, const char* neddle, size_t neddle_size) {
+size_t sse4_strstr_max20(const char* s, size_t n, const char* needle, size_t needle_size) {
     
     const __m128i zeros  = _mm_setzero_si128();
-    const __m128i prefix = sse::load(neddle);
-    const __m128i suffix = sse::load(neddle + 4);
-    const __m128i suff_mask = sse::mask_lower_bytes(neddle_size - 4);
+    const __m128i prefix = sse::load(needle);
+    const __m128i suffix = sse::load(needle + 4);
+    const __m128i suff_mask = sse::mask_lower_bytes(needle_size - 4);
 
     for (size_t i = 0; i < n; i += 8) {
         
@@ -69,13 +69,13 @@ size_t sse4_strstr_max20(const char* s, size_t n, const char* neddle, size_t ned
 
 // ------------------------------------------------------------------------
 
-size_t sse4_strstr_max36(const char* s, size_t n, const char* neddle, size_t neddle_size) {
+size_t sse4_strstr_max36(const char* s, size_t n, const char* needle, size_t needle_size) {
     
     const __m128i zeros     = _mm_setzero_si128();
-    const __m128i prefix    = sse::load(neddle);
-    const __m128i suffix1   = sse::load(neddle + 4);
-    const __m128i suffix2   = sse::load(neddle + 16 + 4);
-    const __m128i suff_mask = sse::mask_higher_bytes(neddle_size - (16 + 4));
+    const __m128i prefix    = sse::load(needle);
+    const __m128i suffix1   = sse::load(needle + 4);
+    const __m128i suffix2   = sse::load(needle + 16 + 4);
+    const __m128i suff_mask = sse::mask_higher_bytes(needle_size - (16 + 4));
 
     for (size_t i = 0; i < n; i += 8) {
         
@@ -110,9 +110,9 @@ size_t sse4_strstr_max36(const char* s, size_t n, const char* neddle, size_t ned
 
 // ------------------------------------------------------------------------
 
-size_t sse4_strstr_len3(const char* s, size_t n, const char* neddle) {
+size_t sse4_strstr_len3(const char* s, size_t n, const char* needle) {
 
-    const __m128i prefix = _mm_loadu_si128(reinterpret_cast<const __m128i*>(neddle));
+    const __m128i prefix = _mm_loadu_si128(reinterpret_cast<const __m128i*>(needle));
     const __m128i zeros  = _mm_setzero_si128();
 
     for (size_t i = 0; i < n; i += 8) {
@@ -136,9 +136,9 @@ size_t sse4_strstr_len3(const char* s, size_t n, const char* neddle) {
 
 // ------------------------------------------------------------------------
 
-size_t sse4_strstr_len4(const char* s, size_t n, const char* neddle) {
+size_t sse4_strstr_len4(const char* s, size_t n, const char* needle) {
 
-    const __m128i prefix = _mm_loadu_si128(reinterpret_cast<const __m128i*>(neddle));
+    const __m128i prefix = _mm_loadu_si128(reinterpret_cast<const __m128i*>(needle));
     const __m128i zeros  = _mm_setzero_si128();
 
     for (size_t i = 0; i < n; i += 8) {
@@ -161,58 +161,58 @@ size_t sse4_strstr_len4(const char* s, size_t n, const char* neddle) {
 
 // ------------------------------------------------------------------------
 
-size_t sse4_strstr(const char* s, size_t n, const char* neddle, size_t neddle_size) {
+size_t sse4_strstr(const char* s, size_t n, const char* needle, size_t needle_size) {
 
     size_t result = std::string::npos;
 
-    if (n < neddle_size) {
+    if (n < needle_size) {
         return result;
     }
 
-	switch (neddle_size) {
+	switch (needle_size) {
 		case 0:
 			return 0;
 
 		case 1: {
-            const char* res = reinterpret_cast<const char*>(strchr(s, neddle[0]));
+            const char* res = reinterpret_cast<const char*>(strchr(s, needle[0]));
 
 			return (res != nullptr) ? res - s : std::string::npos;
             }
 		case 2: {
-			const char* res = reinterpret_cast<const char*>(strstr(s, neddle));
+			const char* res = reinterpret_cast<const char*>(strstr(s, needle));
 
 			return (res != nullptr) ? res - s : std::string::npos;
             }
 		case 3:
 
-			result = sse4_strstr_len3(s, n, neddle);
+			result = sse4_strstr_len3(s, n, needle);
             break;
 
 		case 4:
-			result = sse4_strstr_len4(s, n, neddle);
+			result = sse4_strstr_len4(s, n, needle);
             break;
 
 		case 5: case 6: case 7: case 8: case 9:
 		case 10: case 11: case 12: case 13: case 14:
 		case 15: case 16: case 17: case 18: case 19:
 		case 20: /* 5..20 */
-		    result = sse4_strstr_max20(s, n, neddle, neddle_size);
+		    result = sse4_strstr_max20(s, n, needle, needle_size);
             break;
 
 		case 21: case 22: case 23: case 24: case 25: 
 		case 26: case 27: case 28: case 29: case 30: 
 		case 31: case 32: case 33: case 34: case 35: 
 		case 36: /* 21..36 */
-			result = sse4_strstr_max36(s, n, neddle, neddle_size);
+			result = sse4_strstr_max36(s, n, needle, needle_size);
             break;
 
 		default:
-			result = sse4_strstr_long(s, n, neddle, neddle_size);
+			result = sse4_strstr_long(s, n, needle, needle_size);
             break;
     }
 
 
-    if (result <= n - neddle_size) {
+    if (result <= n - needle_size) {
         return result;
     } else {
         return std::string::npos;
@@ -221,8 +221,8 @@ size_t sse4_strstr(const char* s, size_t n, const char* neddle, size_t neddle_si
 
 // --------------------------------------------------
 
-size_t sse4_strstr(const std::string& s, const std::string& neddle) {
+size_t sse4_strstr(const std::string& s, const std::string& needle) {
 
-    return sse4_strstr(s.data(), s.size(), neddle.data(), neddle.size());
+    return sse4_strstr(s.data(), s.size(), needle.data(), needle.size());
 }
 
