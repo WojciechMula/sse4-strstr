@@ -78,7 +78,81 @@ size_t FORCE_INLINE avx2_strstr_eq(const char* s, size_t n, const char* needle) 
     return std::string::npos;
 }
 
+template <size_t k, typename MEMCMP>
+size_t FORCE_INLINE avx2_strstr_memcmp(const char* s, size_t n, const char* needle, MEMCMP memcmp_fun) {
+
+    assert(k > 0);
+    assert(n > 0);
+
+    const __m256i first = _mm256_set1_epi8(needle[0]);
+    const __m256i last  = _mm256_set1_epi8(needle[k - 1]);
+
+    for (size_t i = 0; i < n; i += 32) {
+
+        const __m256i block_first = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(s + i));
+        const __m256i block_last  = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(s + i + k - 1));
+
+        const __m256i eq_first = _mm256_cmpeq_epi8(first, block_first);
+        const __m256i eq_last  = _mm256_cmpeq_epi8(last, block_last);
+
+        uint32_t mask = _mm256_movemask_epi8(_mm256_and_si256(eq_first, eq_last));
+
+        while (mask != 0) {
+
+            const auto bitpos = bits::get_first_bit_set(mask);
+
+            if (memcmp_fun(s + i + bitpos + 1, needle + 1)) {
+                return i + bitpos;
+            }
+
+            mask = bits::clear_leftmost_set(mask);
+        }
+    }
+
+    return std::string::npos;
+}
+
 // ------------------------------------------------------------------------
+
+namespace {
+
+    bool memcmp1(const char* a, const char* b) {
+        return a[0] == b[0];
+    }
+
+    bool memcmp2(const char* a, const char* b) {
+        return a[0] == b[0] && a[1] == b[1];
+    }
+
+    bool memcmp3(const char* a, const char* b) {
+
+        const uint32_t A = *reinterpret_cast<const uint32_t*>(a);
+        const uint32_t B = *reinterpret_cast<const uint32_t*>(b);
+        return ((A ^ B) & 0x00ffffff) == 0;
+    }
+
+    bool memcmp4(const char* a, const char* b) {
+
+        const uint32_t A = *reinterpret_cast<const uint32_t*>(a);
+        const uint32_t B = *reinterpret_cast<const uint32_t*>(b);
+        return A == B;
+    }
+
+    bool memcmp5(const char* a, const char* b) {
+
+        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
+        return ((A ^ B) & 0x000000fffffffffflu) == 0;
+    }
+
+    bool memcmp6(const char* a, const char* b) {
+
+        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
+        return ((A ^ B) & 0x0000fffffffffffflu) == 0;
+    }
+
+}
 
 size_t avx2_strstr_v2(const char* s, size_t n, const char* needle, size_t k) {
 
@@ -107,23 +181,23 @@ size_t avx2_strstr_v2(const char* s, size_t n, const char* needle, size_t k) {
             break;
 
         case 4:
-            result = avx2_strstr_eq<4>(s, n, needle);
+            result = avx2_strstr_memcmp<4>(s, n, needle, memcmp2);
             break;
 
         case 5:
-            result = avx2_strstr_eq<5>(s, n, needle);
+            result = avx2_strstr_memcmp<5>(s, n, needle, memcmp3);
             break;
 
         case 6:
-            result = avx2_strstr_eq<6>(s, n, needle);
+            result = avx2_strstr_memcmp<6>(s, n, needle, memcmp4);
             break;
 
         case 7:
-            result = avx2_strstr_eq<7>(s, n, needle);
+            result = avx2_strstr_memcmp<7>(s, n, needle, memcmp5);
             break;
 
         case 8:
-            result = avx2_strstr_eq<8>(s, n, needle);
+            result = avx2_strstr_memcmp<8>(s, n, needle, memcmp6);
             break;
 
 		default:
