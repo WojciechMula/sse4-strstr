@@ -152,6 +152,34 @@ namespace {
         return ((A ^ B) & 0x0000fffffffffffflu) == 0;
     }
 
+    bool memcmp7(const char* a, const char* b) {
+
+        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
+        return ((A ^ B) & 0x00fffffffffffffflu) == 0;
+    }
+
+    bool memcmp8(const char* a, const char* b) {
+
+        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
+        return A == B;
+    }
+
+    bool memcmp9(const char* a, const char* b) {
+
+        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
+        return A == B && a[8] == b[8];
+    }
+
+    bool memcmp10(const char* a, const char* b) {
+
+        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
+        return A == B && a[8] == b[8] && a[9] == b[9];
+    }
+
 }
 
 size_t avx2_strstr_v2(const char* s, size_t n, const char* needle, size_t k) {
@@ -177,7 +205,7 @@ size_t avx2_strstr_v2(const char* s, size_t n, const char* needle, size_t k) {
             break;
 
         case 3:
-            result = avx2_strstr_eq<3>(s, n, needle);
+            result = avx2_strstr_memcmp<3>(s, n, needle, memcmp1);
             break;
 
         case 4:
@@ -198,6 +226,25 @@ size_t avx2_strstr_v2(const char* s, size_t n, const char* needle, size_t k) {
 
         case 8:
             result = avx2_strstr_memcmp<8>(s, n, needle, memcmp6);
+            break;
+
+        case 9:
+            result = avx2_strstr_memcmp<9>(s, n, needle, memcmp7);
+            break;
+
+        case 10:
+            result = avx2_strstr_memcmp<10>(s, n, needle, memcmp8);
+            break;
+            break;
+
+        case 11:
+            result = avx2_strstr_memcmp<11>(s, n, needle, memcmp9);
+            break;
+            break;
+
+        case 12:
+            result = avx2_strstr_memcmp<12>(s, n, needle, memcmp10);
+            break;
             break;
 
 		default:
