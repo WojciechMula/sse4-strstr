@@ -1,16 +1,13 @@
 $ for f in 1 2 3; do make run; done
 ./speedup data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.824760 s
-std::string::find   ... reference result = 8108076510, time =  10.724203 s
-SSE2 (v2)           ... reference result = 8108076510, time =   1.298721 s
-SSE4                ... reference result = 8108076510, time =   1.422593 s
+std::strstr         ... reference result = 8108076510, time =   0.831014 s
+SSE2 (v2)           ... reference result = 7704105230, time =   0.788654 s
+SSE4                ... reference result = 8108076510, time =   1.409760 s
 ./speedup data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.826254 s
-std::string::find   ... reference result = 8108076510, time =  10.742065 s
-SSE2 (v2)           ... reference result = 8108076510, time =   1.295926 s
-SSE4                ... reference result = 8108076510, time =   1.415359 s
+std::strstr         ... reference result = 8108076510, time =   0.825982 s
+SSE2 (v2)           ... reference result = 7704105230, time =   0.787000 s
+SSE4                ... reference result = 8108076510, time =   1.400935 s
 ./speedup data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.842122 s
-std::string::find   ... reference result = 8108076510, time =  10.735613 s
-SSE2 (v2)           ... reference result = 8108076510, time =   1.293481 s
-SSE4                ... reference result = 8108076510, time =   1.400450 s
+std::strstr         ... reference result = 8108076510, time =   0.827780 s
+SSE2 (v2)           ... reference result = 7704105230, time =   0.785667 s
+SSE4                ... reference result = 8108076510, time =   1.401231 s

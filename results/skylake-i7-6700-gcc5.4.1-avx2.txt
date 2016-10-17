@@ -1,22 +1,19 @@
 $ for m in 1 2 3; do make run_avx2; done
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.661643 s
-std::string::find   ... reference result = 8108076510, time =   6.544330 s
-SSE2 (v2)           ... reference result = 8108076510, time =   0.702605 s
-SSE4                ... reference result = 8108076510, time =   0.755886 s
-AVX2                ... reference result = 8108076510, time =   0.569767 s
-AVX2 (v2)           ... reference result = 8108076510, time =   0.463066 s
+std::strstr         ... reference result = 8108076510, time =   0.661600 s
+SSE2 (v2)           ... reference result = 7704105230, time =   0.512768 s
+SSE4                ... reference result = 8108076510, time =   0.753962 s
+AVX2                ... reference result = 8108076510, time =   0.570733 s
+AVX2 (v2)           ... reference result = 8108076510, time =   0.356578 s
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.662431 s
-std::string::find   ... reference result = 8108076510, time =   6.541389 s
-SSE2 (v2)           ... reference result = 8108076510, time =   0.702668 s
-SSE4                ... reference result = 8108076510, time =   0.756113 s
-AVX2                ... reference result = 8108076510, time =   0.569797 s
-AVX2 (v2)           ... reference result = 8108076510, time =   0.462662 s
+std::strstr         ... reference result = 8108076510, time =   0.661362 s
+SSE2 (v2)           ... reference result = 7704105230, time =   0.512133 s
+SSE4                ... reference result = 8108076510, time =   0.753788 s
+AVX2                ... reference result = 8108076510, time =   0.570613 s
+AVX2 (v2)           ... reference result = 8108076510, time =   0.356441 s
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.661419 s
-std::string::find   ... reference result = 8108076510, time =   6.540850 s
-SSE2 (v2)           ... reference result = 8108076510, time =   0.702406 s
-SSE4                ... reference result = 8108076510, time =   0.755982 s
-AVX2                ... reference result = 8108076510, time =   0.570047 s
-AVX2 (v2)           ... reference result = 8108076510, time =   0.462869 s
+std::strstr         ... reference result = 8108076510, time =   0.662540 s
+SSE2 (v2)           ... reference result = 7704105230, time =   0.513349 s
+SSE4                ... reference result = 8108076510, time =   0.753968 s
+AVX2                ... reference result = 8108076510, time =   0.570785 s
+AVX2 (v2)           ... reference result = 8108076510, time =   0.357320 s
