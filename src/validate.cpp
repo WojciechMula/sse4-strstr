@@ -15,6 +15,7 @@
 #include "common.h"
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
+#include "fixed-memcmp.cpp"
 #include "sse4-strstr.cpp"
 #include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
