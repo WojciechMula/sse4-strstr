@@ -121,14 +121,9 @@ namespace {
     }
 
     bool memcmp2(const char* a, const char* b) {
-        return a[0] == b[0] && a[1] == b[1];
-    }
-
-    bool memcmp3(const char* a, const char* b) {
-
-        const uint32_t A = *reinterpret_cast<const uint32_t*>(a);
-        const uint32_t B = *reinterpret_cast<const uint32_t*>(b);
-        return ((A ^ B) & 0x00ffffff) == 0;
+        const uint16_t A = *reinterpret_cast<const uint16_t*>(a);
+        const uint16_t B = *reinterpret_cast<const uint16_t*>(b);
+        return A == B;
     }
 
     bool memcmp4(const char* a, const char* b) {
@@ -152,13 +147,6 @@ namespace {
         return ((A ^ B) & 0x0000fffffffffffflu) == 0;
     }
 
-    bool memcmp7(const char* a, const char* b) {
-
-        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
-        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
-        return ((A ^ B) & 0x00fffffffffffffflu) == 0;
-    }
-
     bool memcmp8(const char* a, const char* b) {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
@@ -170,14 +158,16 @@ namespace {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
-        return A == B && a[8] == b[8];
+        return (A == B) & (a[8] == b[8]);
     }
 
     bool memcmp10(const char* a, const char* b) {
 
-        const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
-        const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
-        return A == B && a[8] == b[8] && a[9] == b[9];
+        const uint64_t Aq = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t Bq = *reinterpret_cast<const uint64_t*>(b);
+        const uint16_t Aw = *reinterpret_cast<const uint16_t*>(a + 8);
+        const uint16_t Bw = *reinterpret_cast<const uint16_t*>(b + 8);
+        return (Aq == Bq) & (Aw == Bw);
     }
 
 }
@@ -213,7 +203,9 @@ size_t avx2_strstr_v2(const char* s, size_t n, const char* needle, size_t k) {
             break;
 
         case 5:
-            result = avx2_strstr_memcmp<5>(s, n, needle, memcmp3);
+            // Note: use memcmp4 rather memcmp3, as the last character
+            //       of needle is already proven to be equal
+            result = avx2_strstr_memcmp<5>(s, n, needle, memcmp4);
             break;
 
         case 6:
@@ -229,7 +221,8 @@ size_t avx2_strstr_v2(const char* s, size_t n, const char* needle, size_t k) {
             break;
 
         case 9:
-            result = avx2_strstr_memcmp<9>(s, n, needle, memcmp7);
+            // Note: use memcmp8 rather memcmp7 for the same reason as above.
+            result = avx2_strstr_memcmp<9>(s, n, needle, memcmp8);
             break;
 
         case 10:
