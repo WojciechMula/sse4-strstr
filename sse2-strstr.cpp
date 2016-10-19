@@ -44,7 +44,7 @@ size_t FORCE_INLINE sse2_strstr_memcmp(const char* s, size_t n, const char* need
     const __m128i first = _mm_set1_epi8(needle[0]);
     const __m128i last  = _mm_set1_epi8(needle[k - 1]);
 
-    for (size_t i = 0; i < n; i += 32) {
+    for (size_t i = 0; i < n; i += 16) {
 
         const __m128i block_first = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + i));
         const __m128i block_last  = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + i + k - 1));
