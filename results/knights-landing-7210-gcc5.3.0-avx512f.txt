@@ -1,28 +1,26 @@
 $ for f in 1 2 3; do make run_avx512; done
 ./speedup_avx512 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   4.949655 s
-std::string::find   ... reference result = 8108076510, time =  36.925054 s
-SSE2 (v2)           ... reference result = 8108076510, time =   8.685200 s
-SSE4                ... reference result = 8108076510, time =  19.340828 s
-AVX2                ... reference result = 8108076510, time =  13.157222 s
-AVX2 (v2)           ... reference result = 8108076510, time =   4.804060 s
-AVX512F             ... reference result = 8108076510, time =   2.331236 s
-AVX512F (v2)        ... reference result = 8108076510, time =   2.380025 s
+std::strstr         ... reference result = 8108076510, time =   4.947149 s
+SSE2 (v2)           ... reference result = 8108076510, time =   6.108850 s
+SSE4                ... reference result = 8108076510, time =  19.336312 s
+AVX2                ... reference result = 8108076510, time =  13.151601 s
+AVX2 (v2)           ... reference result = 8108076510, time =   4.095292 s
+AVX512F             ... reference result = 8108076510, time =   2.328368 s
+AVX512F (v2)        ... reference result = 8108076510, time =   1.158186 s
 ./speedup_avx512 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   4.948516 s
-std::string::find   ... reference result = 8108076510, time =  36.906493 s
-SSE2 (v2)           ... reference result = 8108076510, time =   8.684476 s
-SSE4                ... reference result = 8108076510, time =  19.328550 s
-AVX2                ... reference result = 8108076510, time =  13.148755 s
-AVX2 (v2)           ... reference result = 8108076510, time =   4.805711 s
-AVX512F             ... reference result = 8108076510, time =   2.336732 s
-AVX512F (v2)        ... reference result = 8108076510, time =   2.386093 s
+std::strstr         ... reference result = 8108076510, time =   4.951395 s
+SSE2 (v2)           ... reference result = 8108076510, time =   6.115670 s
+SSE4                ... reference result = 8108076510, time =  19.342711 s
+AVX2                ... reference result = 8108076510, time =  13.163016 s
+AVX2 (v2)           ... reference result = 8108076510, time =   4.101103 s
+AVX512F             ... reference result = 8108076510, time =   2.332700 s
+AVX512F (v2)        ... reference result = 8108076510, time =   1.160306 s
 ./speedup_avx512 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   4.950664 s
-std::string::find   ... reference result = 8108076510, time =  36.918470 s
-SSE2 (v2)           ... reference result = 8108076510, time =   8.691588 s
-SSE4                ... reference result = 8108076510, time =  19.335291 s
-AVX2                ... reference result = 8108076510, time =  13.152188 s
-AVX2 (v2)           ... reference result = 8108076510, time =   4.806937 s
-AVX512F             ... reference result = 8108076510, time =   2.332816 s
-AVX512F (v2)        ... reference result = 8108076510, time =   2.382802 s
+std::strstr         ... reference result = 8108076510, time =   4.954338 s
+SSE2 (v2)           ... reference result = 8108076510, time =   6.117582 s
+SSE4                ... reference result = 8108076510, time =  19.343380 s
+AVX2                ... reference result = 8108076510, time =  13.158705 s
+AVX2 (v2)           ... reference result = 8108076510, time =   4.105133 s
+AVX512F             ... reference result = 8108076510, time =   2.342002 s
+AVX512F (v2)        ... reference result = 8108076510, time =   1.172720 s
+
