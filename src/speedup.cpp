@@ -16,6 +16,7 @@
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "sse4-strstr.cpp"
+#include "sse4.2-strstr.cpp"
 #include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
@@ -51,7 +52,8 @@ public:
         const bool measure_stdstring  = true;
 #endif
         const bool measure_sse2       = true;
-        const bool measure_sse4       = true;
+        const bool measure_sse41      = true;
+        const bool measure_sse42      = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
         const bool measure_avx2       = true;
         const bool measure_avx2_v2    = true;
@@ -102,14 +104,26 @@ public:
             measure(find, count);
         }
 
-        if (measure_sse4) {
+        if (measure_sse41) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return sse4_strstr(s, neddle);
             };
 
-            printf("%-20s... ", "SSE4");
+            printf("%-20s... ", "SSE4.1 (MPSADBW)");
+            fflush(stdout);
+            measure(find, count);
+        }
+
+        if (measure_sse42) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return sse42_strstr(s, neddle);
+            };
+
+            printf("%-20s... ", "SSE4.2 (PCMPESTRM)");
             fflush(stdout);
             measure(find, count);
         }

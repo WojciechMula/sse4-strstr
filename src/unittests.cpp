@@ -16,6 +16,7 @@
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "sse4-strstr.cpp"
+#include "sse4.2-strstr.cpp"
 #include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
@@ -82,6 +83,7 @@ int main() {
     puts("running unit tests");
 
     bool test_sse41      = true;
+    bool test_sse42      = true;
     bool test_sse_v2     = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
     bool test_avx2       = true;
@@ -108,6 +110,16 @@ int main() {
         };
 
         if (!tests.run("SSE4.1", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+    if (test_sse42) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return sse42_strstr(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("SSE4.2", wrp)) {
             ret = EXIT_FAILURE;
         }
     }
