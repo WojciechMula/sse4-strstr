@@ -21,7 +21,8 @@ size_t FORCE_INLINE sse42_strstr_anysize(const char* s, size_t n, const char* ne
 
             const auto bitpos = bits::get_first_bit_set(mask);
 
-            if (memcmp(s + i + bitpos, needle, k) == 0) {
+            // we know that at least the first character of needle matches
+            if (memcmp(s + i + bitpos + 1, needle + 1, k - 1) == 0) {
                 return i + bitpos;
             }
 
@@ -55,7 +56,7 @@ size_t FORCE_INLINE sse42_strstr_memcmp(const char* s, size_t n, const char* nee
 
             const auto bitpos = bits::get_first_bit_set(mask);
 
-            if (memcmp_fun(s + i + bitpos, needle)) {
+            if (memcmp_fun(s + i + bitpos + 1, needle + 1)) {
                 return i + bitpos;
             }
 
@@ -87,47 +88,47 @@ size_t sse42_strstr(const char* s, size_t n, const char* needle, size_t k) {
             }
 
         case 2:
-            result = sse42_strstr_memcmp<2>(s, n, needle, memcmp2);
+            result = sse42_strstr_memcmp<2>(s, n, needle, memcmp1);
             break;
 
         case 3:
-            result = sse42_strstr_memcmp<3>(s, n, needle, memcmp3);
+            result = sse42_strstr_memcmp<3>(s, n, needle, memcmp2);
             break;
 
         case 4:
-            result = sse42_strstr_memcmp<4>(s, n, needle, memcmp4);
+            result = sse42_strstr_memcmp<4>(s, n, needle, memcmp3);
             break;
 
         case 5:
-            result = sse42_strstr_memcmp<5>(s, n, needle, memcmp5);
+            result = sse42_strstr_memcmp<5>(s, n, needle, memcmp4);
             break;
 
         case 6:
-            result = sse42_strstr_memcmp<6>(s, n, needle, memcmp6);
+            result = sse42_strstr_memcmp<6>(s, n, needle, memcmp5);
             break;
 
         case 7:
-            result = sse42_strstr_memcmp<7>(s, n, needle, memcmp7);
+            result = sse42_strstr_memcmp<7>(s, n, needle, memcmp6);
             break;
 
         case 8:
-            result = sse42_strstr_memcmp<8>(s, n, needle, memcmp8);
+            result = sse42_strstr_memcmp<8>(s, n, needle, memcmp7);
             break;
 
         case 9:
-            result = sse42_strstr_memcmp<9>(s, n, needle, memcmp9);
+            result = sse42_strstr_memcmp<9>(s, n, needle, memcmp8);
             break;
 
         case 10:
-            result = sse42_strstr_memcmp<10>(s, n, needle, memcmp10);
+            result = sse42_strstr_memcmp<10>(s, n, needle, memcmp9);
             break;
 
         case 11:
-            result = sse42_strstr_memcmp<11>(s, n, needle, memcmp11);
+            result = sse42_strstr_memcmp<11>(s, n, needle, memcmp10);
             break;
 
         case 12:
-            result = sse42_strstr_memcmp<12>(s, n, needle, memcmp12);
+            result = sse42_strstr_memcmp<12>(s, n, needle, memcmp11);
             break;
 
 		default:
