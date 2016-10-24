@@ -1,5 +1,5 @@
-size_t sse4_strstr_long(const char* s, size_t n, const char* needle, size_t needle_size) {
-    
+size_t sse4_strstr_anysize(const char* s, size_t n, const char* needle, size_t needle_size) {
+
     assert(needle_size > 4);
     assert(n > 0);
 
@@ -7,7 +7,7 @@ size_t sse4_strstr_long(const char* s, size_t n, const char* needle, size_t need
     const __m128i zeros  = _mm_setzero_si128();
 
     for (size_t i = 0; i < n; i += 8) {
-        
+
         const __m128i data   = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + i));
         const __m128i result = _mm_mpsadbw_epu8(data, prefix, 0);
 
@@ -32,15 +32,50 @@ size_t sse4_strstr_long(const char* s, size_t n, const char* needle, size_t need
 
 // ------------------------------------------------------------------------
 
+template <size_t k, typename MEMCMP>
+size_t sse4_strstr_memcmp(const char* s, size_t n, const char* needle, MEMCMP memcmp_fun) {
+
+    assert(k > 4);
+    assert(n > 0);
+
+    const __m128i prefix = _mm_loadu_si128(reinterpret_cast<const __m128i*>(needle));
+    const __m128i zeros  = _mm_setzero_si128();
+
+    for (size_t i = 0; i < n; i += 8) {
+
+        const __m128i data   = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + i));
+        const __m128i result = _mm_mpsadbw_epu8(data, prefix, 0);
+
+        const __m128i cmp    = _mm_cmpeq_epi16(result, zeros);
+
+        unsigned mask = _mm_movemask_epi8(cmp) & 0x5555;
+
+        while (mask != 0) {
+
+            const auto bitpos = bits::get_first_bit_set(mask)/2;
+
+            if (memcmp_fun(s + i + bitpos + 4, needle + 4)) {
+                return i + bitpos;
+            }
+
+            mask = bits::clear_leftmost_set(mask);
+        }
+    }
+
+    return std::string::npos;
+}
+
+// ------------------------------------------------------------------------
+
 size_t sse4_strstr_max20(const char* s, size_t n, const char* needle, size_t needle_size) {
-    
+
     const __m128i zeros  = _mm_setzero_si128();
     const __m128i prefix = sse::load(needle);
     const __m128i suffix = sse::load(needle + 4);
     const __m128i suff_mask = sse::mask_lower_bytes(needle_size - 4);
 
     for (size_t i = 0; i < n; i += 8) {
-        
+
         const __m128i data   = sse::load(s + i);
         const __m128i result = _mm_mpsadbw_epu8(data, prefix, 0);
 
@@ -70,7 +105,7 @@ size_t sse4_strstr_max20(const char* s, size_t n, const char* needle, size_t nee
 // ------------------------------------------------------------------------
 
 size_t sse4_strstr_max36(const char* s, size_t n, const char* needle, size_t needle_size) {
-    
+
     const __m128i zeros     = _mm_setzero_si128();
     const __m128i prefix    = sse::load(needle);
     const __m128i suffix1   = sse::load(needle + 4);
@@ -78,7 +113,7 @@ size_t sse4_strstr_max36(const char* s, size_t n, const char* needle, size_t nee
     const __m128i suff_mask = sse::mask_higher_bytes(needle_size - (16 + 4));
 
     for (size_t i = 0; i < n; i += 8) {
-        
+
         const __m128i data   = sse::load(s + i);
         const __m128i result = _mm_mpsadbw_epu8(data, prefix, 0);
 
@@ -142,7 +177,7 @@ size_t sse4_strstr_len4(const char* s, size_t n, const char* needle) {
     const __m128i zeros  = _mm_setzero_si128();
 
     for (size_t i = 0; i < n; i += 8) {
-        
+
         const __m128i data   = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s + i));
         const __m128i result = _mm_mpsadbw_epu8(data, prefix, 0);
 
@@ -192,22 +227,65 @@ size_t sse4_strstr(const char* s, size_t n, const char* needle, size_t needle_si
 			result = sse4_strstr_len4(s, n, needle);
             break;
 
-		case 5: case 6: case 7: case 8: case 9:
-		case 10: case 11: case 12: case 13: case 14:
+#if 1
+		case 5:
+            result = sse4_strstr_memcmp<5>(s, n, needle, memcmp1);
+            break;
+
+		case 6:
+            result = sse4_strstr_memcmp<6>(s, n, needle, memcmp2);
+            break;
+
+		case 7:
+            result = sse4_strstr_memcmp<7>(s, n, needle, memcmp3);
+            break;
+
+		case 8:
+            result = sse4_strstr_memcmp<8>(s, n, needle, memcmp4);
+            break;
+
+		case 9:
+            result = sse4_strstr_memcmp<9>(s, n, needle, memcmp5);
+            break;
+
+		case 10:
+            result = sse4_strstr_memcmp<10>(s, n, needle, memcmp6);
+            break;
+
+		case 11:
+            result = sse4_strstr_memcmp<11>(s, n, needle, memcmp7);
+            break;
+
+		case 12:
+            result = sse4_strstr_memcmp<12>(s, n, needle, memcmp8);
+            break;
+
+		case 13:
+            result = sse4_strstr_memcmp<13>(s, n, needle, memcmp9);
+            break;
+
+		case 14:
+            result = sse4_strstr_memcmp<14>(s, n, needle, memcmp10);
+            break;
+#else
+        case 5: case 6: case 7: case 8:
+        case 9: case 10: case 11: case 12:
+        case 13: case 14: /* 5 .. 14 */
+#endif
 		case 15: case 16: case 17: case 18: case 19:
-		case 20: /* 5..20 */
+		case 20: /* 15..20 */
 		    result = sse4_strstr_max20(s, n, needle, needle_size);
             break;
 
-		case 21: case 22: case 23: case 24: case 25: 
-		case 26: case 27: case 28: case 29: case 30: 
-		case 31: case 32: case 33: case 34: case 35: 
+		case 21: case 22: case 23: case 24: case 25:
+		case 26: case 27: case 28: case 29: case 30:
+		case 31: case 32: case 33: case 34: case 35:
 		case 36: /* 21..36 */
 			result = sse4_strstr_max36(s, n, needle, needle_size);
             break;
 
 		default:
-			result = sse4_strstr_long(s, n, needle, needle_size);
+			result = sse4_strstr_anysize(s, n, needle, needle_size);
             break;
     }
 
