@@ -13,7 +13,12 @@ size_t FORCE_INLINE swar64_strstr_anysize(const char* s, size_t n, const char* n
     for (auto i=0u; i < n; i+=8, block_first++, block_last++) {
         // 0 bytes in eq indicate matching chars
         const uint64_t eq = (*block_first ^ first) | (*block_last ^ last);
-        uint64_t zeros = (eq - 0x0101010101010101u) & ((~eq) & 0x8080808080808080u);
+
+        // 7th bit set if lower 7 bits are zero
+        const uint64_t t0 = (~eq & 0x7f7f7f7f7f7f7f7fllu) + 0x0101010101010101llu;
+        // 7th bit set if 7th bit is zero
+        const uint64_t t1 = (~eq & 0x8080808080808080llu);
+        uint64_t zeros = t0 & t1;
         size_t j = 0;
 
         while (zeros) {
@@ -46,9 +51,10 @@ size_t FORCE_INLINE swar64_strstr_memcmp(const char* s, size_t n, const char* ne
 
     // 2. sequence scan
     for (auto i=0u; i < n; i+=8, block_first++, block_last++) {
-        // 0 bytes in eq indicate matching chars
         const uint64_t eq = (*block_first ^ first) | (*block_last ^ last);
-        uint64_t zeros = (eq - 0x0101010101010101u) & ((~eq) & 0x8080808080808080u);
+        const uint64_t t0 = (~eq & 0x7f7f7f7f7f7f7f7fllu) + 0x0101010101010101llu;
+        const uint64_t t1 = (~eq & 0x8080808080808080llu);
+        uint64_t zeros = t0 & t1;
         size_t j = 0;
     
         while (zeros) {
