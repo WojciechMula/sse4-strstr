@@ -18,4 +18,13 @@ namespace bits {
         return __builtin_ctz(value);
     }
 
+
+    template <>
+    unsigned get_first_bit_set<uint64_t>(const uint64_t value) {
+
+        assert(value != 0);
+
+        return __builtin_ctzl(value);
+    }
+
 } // namespace bits

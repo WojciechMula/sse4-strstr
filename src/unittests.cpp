@@ -15,6 +15,7 @@
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
+#include "swar64-strstr-v2.cpp"
 #include "sse4-strstr.cpp"
 #include "sse4.2-strstr.cpp"
 #include "sse2-strstr.cpp"
@@ -82,6 +83,7 @@ int main() {
 
     puts("running unit tests");
 
+    bool test_swar64     = true;
     bool test_sse41      = true;
     bool test_sse42      = true;
     bool test_sse_v2     = true;
@@ -93,6 +95,16 @@ int main() {
     bool test_avx512f    = true;
     bool test_avx512f_v2 = true;
 #endif
+
+    if (test_swar64) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return swar64_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("SWAR 64-bit (v2)", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
 
     if (test_sse_v2) {
         auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
