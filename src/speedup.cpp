@@ -17,6 +17,7 @@
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
 #include "sse4-strstr.cpp"
+#include "sse4-strstr-unrolled.cpp"
 #include "sse4.2-strstr.cpp"
 #include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
@@ -55,6 +56,7 @@ public:
         const bool measure_swar64     = true;
         const bool measure_sse2       = true;
         const bool measure_sse41      = true;
+        const bool measure_sse41unrl  = true;
         const bool measure_sse42      = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
         const bool measure_avx2       = true;
@@ -77,7 +79,7 @@ public:
                 }
             };
 
-            printf("%-20s... ", "std::strstr");
+            printf("%-30s... ", "std::strstr");
             fflush(stdout);
             measure(find, count);
         }
@@ -89,7 +91,7 @@ public:
                 return s.find(neddle);
             };
 
-            printf("%-20s... ", "std::string::find");
+            printf("%-30s... ", "std::string::find");
             fflush(stdout);
             measure(find, count);
         }
@@ -101,7 +103,7 @@ public:
                 return swar64_strstr_v2(s, neddle);
             };
 
-            printf("%-20s... ", "SWAR 64-bit (v2)");
+            printf("%-30s... ", "SWAR 64-bit (v2)");
             fflush(stdout);
             measure(find, count);
         }
@@ -113,7 +115,7 @@ public:
                 return sse2_strstr_v2(s, neddle);
             };
 
-            printf("%-20s... ", "SSE2 (v2)");
+            printf("%-30s... ", "SSE2 (v2)");
             fflush(stdout);
             measure(find, count);
         }
@@ -125,7 +127,19 @@ public:
                 return sse4_strstr(s, neddle);
             };
 
-            printf("%-20s... ", "SSE4.1 (MPSADBW)");
+            printf("%-30s... ", "SSE4.1 (MPSADBW)");
+            fflush(stdout);
+            measure(find, count);
+        }
+
+        if (measure_sse41unrl) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return sse4_strstr_unrolled(s, neddle);
+            };
+
+            printf("%-30s... ", "SSE4.1 (MPSADBW unrolled)");
             fflush(stdout);
             measure(find, count);
         }
@@ -137,7 +151,7 @@ public:
                 return sse42_strstr(s, neddle);
             };
 
-            printf("%-20s... ", "SSE4.2 (PCMPESTRM)");
+            printf("%-30s... ", "SSE4.2 (PCMPESTRM)");
             fflush(stdout);
             measure(find, count);
         }
@@ -150,7 +164,7 @@ public:
                 return avx2_strstr(s, neddle);
             };
 
-            printf("%-20s... ", "AVX2");
+            printf("%-30s... ", "AVX2");
             fflush(stdout);
             measure(find, count);
         }
@@ -162,7 +176,7 @@ public:
                 return avx2_strstr_v2(s, neddle);
             };
 
-            printf("%-20s... ", "AVX2 (v2)");
+            printf("%-30s... ", "AVX2 (v2)");
             fflush(stdout);
             measure(find, count);
         }
@@ -176,7 +190,7 @@ public:
                 return avx512f_strstr(s, neddle);
             };
 
-            printf("%-20s... ", "AVX512F");
+            printf("%-30s... ", "AVX512F");
             fflush(stdout);
             measure(find, count);
         }
@@ -188,7 +202,7 @@ public:
                 return avx512f_strstr_v2(s, neddle);
             };
 
-            printf("%-20s... ", "AVX512F (v2)");
+            printf("%-30s... ", "AVX512F (v2)");
             fflush(stdout);
             measure(find, count);
         }

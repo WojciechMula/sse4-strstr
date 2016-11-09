@@ -17,6 +17,7 @@
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
 #include "sse4-strstr.cpp"
+#include "sse4-strstr-unrolled.cpp"
 #include "sse4.2-strstr.cpp"
 #include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
@@ -85,6 +86,7 @@ int main() {
 
     bool test_swar64     = true;
     bool test_sse41      = true;
+    bool test_sse41unrl  = true;
     bool test_sse42      = true;
     bool test_sse_v2     = true;
 #ifdef HAVE_AVX2_INSTRUCTIONS
@@ -122,6 +124,16 @@ int main() {
         };
 
         if (!tests.run("SSE4.1", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+    if (test_sse41unrl) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return sse4_strstr_unrolled(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("SSE4.1 (unrolled)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }

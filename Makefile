@@ -6,7 +6,7 @@ FLAGS_AVX2=$(FLAGS) -mavx2 -DHAVE_AVX2_INSTRUCTIONS
 FLAGS_AVX512=$(FLAGS) -mavx512f -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS
 
 DEPS=utils/ansi.cpp utils/bits.cpp common.h fixed-memcmp.cpp
-DEPS_SSE4=swar64-strstr-v2.cpp sse4-strstr.cpp sse4.2-strstr.cpp sse2-strstr.cpp utils/sse.cpp $(DEPS)
+DEPS_SSE4=swar64-strstr-v2.cpp sse4-strstr.cpp sse4-strstr-unrolled.cpp sse4.2-strstr.cpp sse2-strstr.cpp utils/sse.cpp $(DEPS)
 DEPS_AVX2=avx2-strstr.cpp avx2-strstr-v2.cpp utils/avx2.cpp $(DEPS_SSE4)
 DEPS_AVX512=avx512f-strstr.cpp avx512f-strstr-v2.cpp utils/avx512.cpp $(DEPS_AVX2)
 

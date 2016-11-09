@@ -16,7 +16,9 @@
 #include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
+#include "swar64-strstr-v2.cpp"
 #include "sse4-strstr.cpp"
+#include "sse4-strstr-unrolled.cpp"
 #include "sse4.2-strstr.cpp"
 #include "sse2-strstr.cpp"
 #ifdef HAVE_AVX2_INSTRUCTIONS
@@ -47,8 +49,10 @@ public:
             const auto& word = words[i];
 
             const auto reference = file.find(word);
+            const auto result_swar = swar64_strstr_v2(file, word);
             const auto result_sse2 = sse2_strstr_v2(file, word);
             const auto result_sse41 = sse4_strstr(file, word);
+            const auto result_sse41unrl = sse4_strstr_unrolled(file, word);
             const auto result_sse42 = sse42_strstr(file, word);
 #ifdef HAVE_AVX2_INSTRUCTIONS
             const auto result_avx2    = avx2_strstr(file, word);
@@ -61,6 +65,17 @@ public:
     
             if (i % 100 == 0) {
                 print_progress(i, n);
+            }
+
+            if (reference != result_swar) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, swar= %lu\n",
+                    msg.data(), reference, result_swar);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
             }
 
             if (reference != result_sse2) {
@@ -78,6 +93,17 @@ public:
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
                 printf("%s: std::find result = %lu, sse4_string = %lu\n",
+                    msg.data(), reference, result_sse41);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+
+            if (reference != result_sse41unrl) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, sse4_unrolled = %lu\n",
                     msg.data(), reference, result_sse41);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
