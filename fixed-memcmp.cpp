@@ -46,8 +46,7 @@ namespace {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
-        return (((A ^ B) & 0x0000fffffffffffflu) == 0)
-             & (a[6] == b[6]);
+        return ((A ^ B) & 0x00fffffffffffffflu) == 0;
     }
 
     bool memcmp8(const char* a, const char* b) {
