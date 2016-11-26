@@ -81,5 +81,14 @@ namespace {
         return (Aq == Bq) & ((Ad & 0x00ffffff) == (Bd & 0x00ffffff));
     }
 
+    bool memcmp12(const char* a, const char* b) {
+
+        const uint64_t Aq = *reinterpret_cast<const uint64_t*>(a);
+        const uint64_t Bq = *reinterpret_cast<const uint64_t*>(b);
+        const uint32_t Ad = *reinterpret_cast<const uint32_t*>(a + 8);
+        const uint32_t Bd = *reinterpret_cast<const uint32_t*>(b + 8);
+        return (Aq == Bq) & (Ad == Bd);
+    }
+
 }
 

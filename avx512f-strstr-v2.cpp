@@ -8,6 +8,7 @@ __mmask16 FORCE_INLINE zero_byte_mask(const __m512i v) {
     const __m512i v80  = _mm512_set1_epi32(0x80808080u);
 
     const __m512i v1   = _mm512_sub_epi32(v, v01);
+    // tmp1 = (v - 0x01010101) & ~v & 0x80808080
     const __m512i tmp1 = _mm512_ternarylogic_epi32(v1, v, v80, 0x20);
 
     return _mm512_test_epi32_mask(tmp1, tmp1);
