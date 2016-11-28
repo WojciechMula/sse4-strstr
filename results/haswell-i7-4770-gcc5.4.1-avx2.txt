@@ -1,19 +1,27 @@
-$ for m in 1 2 3; do make run_avx2; done
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.483683 s
-SSE2 (v2)           ... reference result = 7704105230, time =   0.496178 s
-SSE4                ... reference result = 8108076510, time =   0.840390 s
-AVX2                ... reference result = 8108076510, time =   0.566684 s
-AVX2 (v2)           ... reference result = 8108076510, time =   0.348405 s
+std::strstr                             ... reference result = 8108076510, time =   0.528137 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   1.605520 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   0.554532 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =   0.897859 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =   0.996473 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   1.559956 s
+AVX2 (MPSADBW)                          ... reference result = 8108076510, time =   0.615836 s
+AVX2 (generic)                          ... reference result = 8108076510, time =   0.386747 s
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.485566 s
-SSE2 (v2)           ... reference result = 7704105230, time =   0.496478 s
-SSE4                ... reference result = 8108076510, time =   0.840667 s
-AVX2                ... reference result = 8108076510, time =   0.566813 s
-AVX2 (v2)           ... reference result = 8108076510, time =   0.348490 s
+std::strstr                             ... reference result = 8108076510, time =   0.527864 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   1.577149 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   0.554352 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =   0.897752 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =   0.996771 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   1.560012 s
+AVX2 (MPSADBW)                          ... reference result = 8108076510, time =   0.615825 s
+AVX2 (generic)                          ... reference result = 8108076510, time =   0.386528 s
 ./speedup_avx2 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   0.485518 s
-SSE2 (v2)           ... reference result = 7704105230, time =   0.495867 s
-SSE4                ... reference result = 8108076510, time =   0.841271 s
-AVX2                ... reference result = 8108076510, time =   0.566750 s
-AVX2 (v2)           ... reference result = 8108076510, time =   0.348306 s
+std::strstr                             ... reference result = 8108076510, time =   0.528205 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   1.591732 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   0.554423 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =   0.897921 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =   0.996889 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   1.559919 s
+AVX2 (MPSADBW)                          ... reference result = 8108076510, time =   0.615783 s
+AVX2 (generic)                          ... reference result = 8108076510, time =   0.386609 s

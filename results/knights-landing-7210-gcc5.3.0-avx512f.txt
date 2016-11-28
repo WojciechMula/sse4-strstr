@@ -1,26 +1,33 @@
-$ for f in 1 2 3; do make run_avx512; done
 ./speedup_avx512 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   4.947149 s
-SSE2 (v2)           ... reference result = 8108076510, time =   6.108850 s
-SSE4                ... reference result = 8108076510, time =  19.336312 s
-AVX2                ... reference result = 8108076510, time =  13.151601 s
-AVX2 (v2)           ... reference result = 8108076510, time =   4.095292 s
-AVX512F             ... reference result = 8108076510, time =   2.328368 s
-AVX512F (v2)        ... reference result = 8108076510, time =   1.158186 s
+std::strstr                             ... reference result = 8108076510, time =   4.964439 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   8.205818 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   6.126381 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =  18.737857 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =  13.745691 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   6.306659 s
+AVX2 (MPSADBW)                          ... reference result = 8108076510, time =  13.179747 s
+AVX2 (generic)                          ... reference result = 8108076510, time =   4.113571 s
+AVX512F (MPSADBW-like)                  ... reference result = 8108076510, time =   2.348848 s
+AVX512F (generic)                       ... reference result = 8108076510, time =   1.164081 s
 ./speedup_avx512 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   4.951395 s
-SSE2 (v2)           ... reference result = 8108076510, time =   6.115670 s
-SSE4                ... reference result = 8108076510, time =  19.342711 s
-AVX2                ... reference result = 8108076510, time =  13.163016 s
-AVX2 (v2)           ... reference result = 8108076510, time =   4.101103 s
-AVX512F             ... reference result = 8108076510, time =   2.332700 s
-AVX512F (v2)        ... reference result = 8108076510, time =   1.160306 s
+std::strstr                             ... reference result = 8108076510, time =   4.946063 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   8.172884 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   6.107860 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =  18.717146 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =  13.724856 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   6.288685 s
+AVX2 (MPSADBW)                          ... reference result = 8108076510, time =  13.151361 s
+AVX2 (generic)                          ... reference result = 8108076510, time =   4.094781 s
+AVX512F (MPSADBW-like)                  ... reference result = 8108076510, time =   2.327864 s
+AVX512F (generic)                       ... reference result = 8108076510, time =   1.142747 s
 ./speedup_avx512 data/i386.txt data/words 
-std::strstr         ... reference result = 8108076510, time =   4.954338 s
-SSE2 (v2)           ... reference result = 8108076510, time =   6.117582 s
-SSE4                ... reference result = 8108076510, time =  19.343380 s
-AVX2                ... reference result = 8108076510, time =  13.158705 s
-AVX2 (v2)           ... reference result = 8108076510, time =   4.105133 s
-AVX512F             ... reference result = 8108076510, time =   2.342002 s
-AVX512F (v2)        ... reference result = 8108076510, time =   1.172720 s
-
+std::strstr                             ... reference result = 8108076510, time =   4.949234 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   8.170751 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   6.109035 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =  18.716665 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =  13.727568 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   6.289994 s
+AVX2 (MPSADBW)                          ... reference result = 8108076510, time =  13.153943 s
+AVX2 (generic)                          ... reference result = 8108076510, time =   4.094941 s
+AVX512F (MPSADBW-like)                  ... reference result = 8108076510, time =   2.326156 s
+AVX512F (generic)                       ... reference result = 8108076510, time =   1.140567 s
