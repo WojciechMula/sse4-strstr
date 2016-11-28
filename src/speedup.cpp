@@ -79,7 +79,7 @@ public:
                 }
             };
 
-            printf("%-30s... ", "std::strstr");
+            printf("%-40s... ", "std::strstr");
             fflush(stdout);
             measure(find, count);
         }
@@ -91,7 +91,7 @@ public:
                 return s.find(neddle);
             };
 
-            printf("%-30s... ", "std::string::find");
+            printf("%-40s... ", "std::string::find");
             fflush(stdout);
             measure(find, count);
         }
@@ -103,7 +103,7 @@ public:
                 return swar64_strstr_v2(s, neddle);
             };
 
-            printf("%-30s... ", "SWAR 64-bit (v2)");
+            printf("%-40s... ", "SWAR 64-bit (generic)");
             fflush(stdout);
             measure(find, count);
         }
@@ -115,7 +115,7 @@ public:
                 return sse2_strstr_v2(s, neddle);
             };
 
-            printf("%-30s... ", "SSE2 (v2)");
+            printf("%-40s... ", "SSE2 (generic)");
             fflush(stdout);
             measure(find, count);
         }
@@ -127,7 +127,7 @@ public:
                 return sse4_strstr(s, neddle);
             };
 
-            printf("%-30s... ", "SSE4.1 (MPSADBW)");
+            printf("%-40s... ", "SSE4.1 (MPSADBW)");
             fflush(stdout);
             measure(find, count);
         }
@@ -139,7 +139,7 @@ public:
                 return sse4_strstr_unrolled(s, neddle);
             };
 
-            printf("%-30s... ", "SSE4.1 (MPSADBW unrolled)");
+            printf("%-40s... ", "SSE4.1 (MPSADBW unrolled)");
             fflush(stdout);
             measure(find, count);
         }
@@ -151,7 +151,7 @@ public:
                 return sse42_strstr(s, neddle);
             };
 
-            printf("%-30s... ", "SSE4.2 (PCMPESTRM)");
+            printf("%-40s... ", "SSE4.2 (PCMPESTRM)");
             fflush(stdout);
             measure(find, count);
         }
@@ -164,7 +164,7 @@ public:
                 return avx2_strstr(s, neddle);
             };
 
-            printf("%-30s... ", "AVX2");
+            printf("%-40s... ", "AVX2 (MPSADBW)");
             fflush(stdout);
             measure(find, count);
         }
@@ -176,7 +176,7 @@ public:
                 return avx2_strstr_v2(s, neddle);
             };
 
-            printf("%-30s... ", "AVX2 (v2)");
+            printf("%-40s... ", "AVX2 (generic)");
             fflush(stdout);
             measure(find, count);
         }
@@ -190,7 +190,7 @@ public:
                 return avx512f_strstr(s, neddle);
             };
 
-            printf("%-30s... ", "AVX512F");
+            printf("%-40s... ", "AVX512F (MPSADBW-like)");
             fflush(stdout);
             measure(find, count);
         }
@@ -202,7 +202,7 @@ public:
                 return avx512f_strstr_v2(s, neddle);
             };
 
-            printf("%-30s... ", "AVX512F (v2)");
+            printf("%-40s... ", "AVX512F (generic)");
             fflush(stdout);
             measure(find, count);
         }
@@ -219,15 +219,18 @@ public:
             "Measure speed of following procedures: "
               "std::strstr"
             ", std::string::find"
-            ", SSE2"
-            ", SSE4"
+            ", SWAR 64-bit (generic)"
+            ", SSE2 (generic)"
+            ", SSE4.1 (MPSADBW)"
+            ", SSE4.1 (MPSADBW unrolled)"
+            ", SSE4.2 (PCMPESTRM)"
 #ifdef HAVE_AVX2_INSTRUCTIONS
-            ", AVX2"
-            ", AVX2 (v2)"
+            ", AVX2 (MPSADBW)"
+            ", AVX2 (generic)"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
-            ", AVX512F"
-            ", AVX512F (v2)"
+            ", AVX512F (MPSADBW-like)"
+            ", AVX512F (generic)"
 #endif
         );
         std::puts("");
