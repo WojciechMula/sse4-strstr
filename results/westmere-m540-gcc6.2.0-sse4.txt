@@ -1,0 +1,21 @@
+./speedup data/i386.txt data/words 
+std::strstr                             ... reference result = 8108076510, time =   0.832291 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   2.498591 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   0.745890 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =   1.450405 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =   1.238676 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   1.699681 s
+./speedup data/i386.txt data/words 
+std::strstr                             ... reference result = 8108076510, time =   0.822457 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   2.518604 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   0.750936 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =   1.470000 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =   1.239929 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   1.707411 s
+./speedup data/i386.txt data/words 
+std::strstr                             ... reference result = 8108076510, time =   0.827280 s
+SWAR 64-bit (generic)                   ... reference result = 8108076510, time =   2.535406 s
+SSE2 (generic)                          ... reference result = 8108076510, time =   0.747252 s
+SSE4.1 (MPSADBW)                        ... reference result = 8108076510, time =   1.456153 s
+SSE4.1 (MPSADBW unrolled)               ... reference result = 8108076510, time =   1.238485 s
+SSE4.2 (PCMPESTRM)                      ... reference result = 8108076510, time =   1.711734 s
