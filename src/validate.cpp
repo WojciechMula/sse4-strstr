@@ -5,22 +5,19 @@
 #include <string>
 #include <vector>
 
-#include <smmintrin.h>
-#if defined(HAVE_AVX2_INSTRUCTIONS) || defined(HAVE_AVX512F_INSTRUCTIONS)
-#   include <immintrin.h>
-#endif
-
 // ------------------------------------------------------------------------
 
 #include "common.h"
-#include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
-#include "sse4-strstr.cpp"
-#include "sse4-strstr-unrolled.cpp"
-#include "sse4.2-strstr.cpp"
-#include "sse2-strstr.cpp"
+#ifdef HAVE_SSE_INSTRUCTIONS
+#   include <utils/sse.cpp>
+#   include "sse4-strstr.cpp"
+#   include "sse4-strstr-unrolled.cpp"
+#   include "sse4.2-strstr.cpp"
+#   include "sse2-strstr.cpp"
+#endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
@@ -50,10 +47,12 @@ public:
 
             const auto reference = file.find(word);
             const auto result_swar = swar64_strstr_v2(file, word);
+#ifdef HAVE_SSE_INSTRUCTIONS
             const auto result_sse2 = sse2_strstr_v2(file, word);
             const auto result_sse41 = sse4_strstr(file, word);
             const auto result_sse41unrl = sse4_strstr_unrolled(file, word);
             const auto result_sse42 = sse42_strstr(file, word);
+#endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
             const auto result_avx2    = avx2_strstr(file, word);
             const auto result_avx2_v2 = avx2_strstr_v2(file, word);
@@ -78,6 +77,7 @@ public:
                 return false;
             }
 
+#ifdef HAVE_SSE_INSTRUCTIONS
             if (reference != result_sse2) {
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
@@ -121,6 +121,7 @@ public:
 
                 return false;
             }
+#endif // HAVE_SSE_INSTRUCTIONS
 
 #ifdef HAVE_AVX2_INSTRUCTIONS
             if (reference != result_avx2) {
@@ -144,7 +145,7 @@ public:
 
                 return false;
             }
-#endif
+#endif // HAVE_AVX2_INSTRUCTIONS
 
 #ifdef HAVE_AVX512F_INSTRUCTIONS
             if (reference != result_avx512f) {
@@ -168,7 +169,7 @@ public:
 
                 return false;
             }
-#endif
+#endif // HAVE_AVX512F_INSTRUCTIONS
         }
 
         print_progress(n, n);

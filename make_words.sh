@@ -1,6 +1,5 @@
 # split words
 cat $1 \
-  | tr -s -c "a-zA-Z" " " \
-  | awk '{for (i=1; i <= NF; i++) print $i}' \
+  | tr -s -c "a-zA-Z" "\n" \
   | sort -u \
   > $2

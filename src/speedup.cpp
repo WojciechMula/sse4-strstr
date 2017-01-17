@@ -6,20 +6,17 @@
 #include <vector>
 #include <chrono>
 
-#include <smmintrin.h>
-#if defined(HAVE_AVX2_INSTRUCTIONS) || defined(HAVE_AVX512F_INSTRUCTIONS)
-#   include <immintrin.h>
-#endif
-
 #include "common.h"
-#include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
-#include "sse4-strstr.cpp"
-#include "sse4-strstr-unrolled.cpp"
-#include "sse4.2-strstr.cpp"
-#include "sse2-strstr.cpp"
+#ifdef HAVE_SSE_INSTRUCTIONS
+#   include <utils/sse.cpp>
+#   include "sse4-strstr.cpp"
+#   include "sse4-strstr-unrolled.cpp"
+#   include "sse4.2-strstr.cpp"
+#   include "sse2-strstr.cpp"
+#endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
@@ -40,7 +37,7 @@ class Application final: public ApplicationBase {
     std::size_t count;
 
 public:
-    Application() : count(10) {
+    Application() : count(1) { // TODO: allow to set from cmd line
     }
 
     bool operator()() {
@@ -54,10 +51,12 @@ public:
         const bool measure_stdstring  = true;
 #endif
         const bool measure_swar64     = true;
+#ifdef HAVE_SSE_INSTRUCTIONS
         const bool measure_sse2       = true;
         const bool measure_sse41      = true;
         const bool measure_sse41unrl  = true;
         const bool measure_sse42      = true;
+#endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
         const bool measure_avx2       = true;
         const bool measure_avx2_v2    = true;
@@ -108,6 +107,7 @@ public:
             measure(find, count);
         }
 
+#ifdef HAVE_SSE_INSTRUCTIONS
         if (measure_sse2) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
@@ -155,6 +155,7 @@ public:
             fflush(stdout);
             measure(find, count);
         }
+#endif
 
 #ifdef HAVE_AVX2_INSTRUCTIONS
         if (measure_avx2) {

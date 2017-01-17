@@ -10,5 +10,9 @@ speedup_avx512
 unittests_avx512
 validate_avx512
 
+speedup_arm
+unittests_arm
+validate_arm
+
 data/i386.txt
 data/words

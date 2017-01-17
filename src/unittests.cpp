@@ -5,21 +5,18 @@
 #include <string>
 #include <vector>
 
-#include <smmintrin.h>
-#if defined(HAVE_AVX2_INSTRUCTIONS) || defined(HAVE_AVX512F_INSTRUCTIONS)
-#   include <immintrin.h>
-#endif
-
 #include "common.h"
 #include <utils/ansi.cpp>
-#include <utils/sse.cpp>
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
-#include "sse4-strstr.cpp"
-#include "sse4-strstr-unrolled.cpp"
-#include "sse4.2-strstr.cpp"
-#include "sse2-strstr.cpp"
+#ifdef HAVE_SSE_INSTRUCTIONS
+#   include <utils/sse.cpp>
+#   include "sse4-strstr.cpp"
+#   include "sse4-strstr-unrolled.cpp"
+#   include "sse4.2-strstr.cpp"
+#   include "sse2-strstr.cpp"
+#endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
@@ -85,10 +82,12 @@ int main() {
     puts("running unit tests");
 
     bool test_swar64     = true;
+#ifdef HAVE_SSE_INSTRUCTIONS
     bool test_sse41      = true;
     bool test_sse41unrl  = true;
     bool test_sse42      = true;
     bool test_sse_v2     = true;
+#endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
     bool test_avx2       = true;
     bool test_avx2_v2    = true;
@@ -108,6 +107,7 @@ int main() {
         }
     }
 
+#ifdef HAVE_SSE_INSTRUCTIONS
     if (test_sse_v2) {
         auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
             return sse2_strstr_v2(s1, n1, s2, n2);
@@ -147,6 +147,7 @@ int main() {
             ret = EXIT_FAILURE;
         }
     }
+#endif
 
 #ifdef HAVE_AVX2_INSTRUCTIONS
     if (test_avx2) {
