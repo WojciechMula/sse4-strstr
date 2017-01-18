@@ -28,6 +28,10 @@
 #   include "avx512f-strstr.cpp"
 #   include "avx512f-strstr-v2.cpp"
 #endif
+#ifdef HAVE_NEON_INSTRUCTIONS
+#   include <utils/neon.cpp>
+#   include "neon-strstr-v2.cpp"
+#endif
 
 class UnitTests final {
 
@@ -82,8 +86,8 @@ int main() {
 
     puts("running unit tests");
 
-    bool test_swar64     = true;
-    bool test_swar32     = true;
+    bool test_swar64     = !true;
+    bool test_swar32     = !true;
 #ifdef HAVE_SSE_INSTRUCTIONS
     bool test_sse41      = true;
     bool test_sse41unrl  = true;
@@ -97,6 +101,9 @@ int main() {
 #ifdef HAVE_AVX512F_INSTRUCTIONS
     bool test_avx512f    = true;
     bool test_avx512f_v2 = true;
+#endif
+#ifdef HAVE_NEON_INSTRUCTIONS
+    bool test_neon_v2    = true;
 #endif
 
     if (test_swar64) {
@@ -200,6 +207,18 @@ int main() {
         };
 
         if (!tests.run("AVX512F (v2)", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+#endif
+
+#ifdef HAVE_NEON_INSTRUCTIONS
+    if (test_neon_v2) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return neon_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("ARM Neon 32 bit (v2)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }

@@ -27,6 +27,10 @@
 #   include "avx512f-strstr.cpp"
 #   include "avx512f-strstr-v2.cpp"
 #endif
+#ifdef HAVE_NEON_INSTRUCTIONS
+#   include <utils/neon.cpp>
+#   include "neon-strstr-v2.cpp"
+#endif
 
 // ------------------------------------------------------------------------
 
@@ -43,15 +47,15 @@ public:
 
     bool operator()() {
 
-        const bool measure_libc       = true;
+        const bool measure_libc       = !true;
 #ifdef __GNUC__
         // GNU std::string::find was proven to be utterly slow,
         // don't waste our time on reconfirming that fact.
         const bool measure_stdstring  = false;
 #else
-        const bool measure_stdstring  = true;
+        const bool measure_stdstring  = !true;
 #endif
-        const bool measure_swar64     = true;
+        const bool measure_swar64     = !true;
         const bool measure_swar32     = true;
 #ifdef HAVE_SSE_INSTRUCTIONS
         const bool measure_sse2       = true;
@@ -66,6 +70,9 @@ public:
 #ifdef HAVE_AVX512F_INSTRUCTIONS
         const bool measure_avx512f    = true;
         const bool measure_avx512f_v2 = true;
+#endif
+#ifdef HAVE_NEON_INSTRUCTIONS
+        const bool measure_neon_v2    = true;
 #endif
 
         if (measure_libc) {
@@ -223,6 +230,20 @@ public:
         }
 #endif
 
+#ifdef HAVE_NEON_INSTRUCTIONS
+        if (measure_neon_v2) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return neon_strstr_v2(s, neddle);
+            };
+
+            printf("%-40s... ", "ARM Neon 32 bit (v2)");
+            fflush(stdout);
+            measure(find, count);
+        }
+#endif
+
         return true;
     }
 
@@ -235,10 +256,13 @@ public:
               "std::strstr"
             ", std::string::find"
             ", SWAR 64-bit (generic)"
+            ", SWAR 32-bit (generic)"
+#ifdef HAVE_SSE_INSTRUCTIONS
             ", SSE2 (generic)"
             ", SSE4.1 (MPSADBW)"
             ", SSE4.1 (MPSADBW unrolled)"
             ", SSE4.2 (PCMPESTRM)"
+#endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
             ", AVX2 (MPSADBW)"
             ", AVX2 (generic)"
@@ -246,6 +270,9 @@ public:
 #ifdef HAVE_AVX512F_INSTRUCTIONS
             ", AVX512F (MPSADBW-like)"
             ", AVX512F (generic)"
+#endif
+#ifdef HAVE_NEON_INSTRUCTIONS
+            ", ARM Neon 32 bit (v2)"
 #endif
         );
         std::puts("");
