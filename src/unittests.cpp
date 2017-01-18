@@ -10,6 +10,7 @@
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
+#include "swar32-strstr-v2.cpp"
 #ifdef HAVE_SSE_INSTRUCTIONS
 #   include <utils/sse.cpp>
 #   include "sse4-strstr.cpp"
@@ -82,6 +83,7 @@ int main() {
     puts("running unit tests");
 
     bool test_swar64     = true;
+    bool test_swar32     = true;
 #ifdef HAVE_SSE_INSTRUCTIONS
     bool test_sse41      = true;
     bool test_sse41unrl  = true;
@@ -103,6 +105,16 @@ int main() {
         };
 
         if (!tests.run("SWAR 64-bit (v2)", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+    if (test_swar32) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return swar32_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("SWAR 32-bit (v2)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }

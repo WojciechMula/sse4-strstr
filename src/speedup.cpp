@@ -10,6 +10,7 @@
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
+#include "swar32-strstr-v2.cpp"
 #ifdef HAVE_SSE_INSTRUCTIONS
 #   include <utils/sse.cpp>
 #   include "sse4-strstr.cpp"
@@ -51,6 +52,7 @@ public:
         const bool measure_stdstring  = true;
 #endif
         const bool measure_swar64     = true;
+        const bool measure_swar32     = true;
 #ifdef HAVE_SSE_INSTRUCTIONS
         const bool measure_sse2       = true;
         const bool measure_sse41      = true;
@@ -103,6 +105,18 @@ public:
             };
 
             printf("%-40s... ", "SWAR 64-bit (generic)");
+            fflush(stdout);
+            measure(find, count);
+        }
+
+        if (measure_swar32) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return swar32_strstr_v2(s, neddle);
+            };
+
+            printf("%-40s... ", "SWAR 32-bit (generic)");
             fflush(stdout);
             measure(find, count);
         }

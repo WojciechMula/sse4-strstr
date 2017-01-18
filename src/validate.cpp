@@ -11,6 +11,7 @@
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
 #include "swar64-strstr-v2.cpp"
+#include "swar32-strstr-v2.cpp"
 #ifdef HAVE_SSE_INSTRUCTIONS
 #   include <utils/sse.cpp>
 #   include "sse4-strstr.cpp"
@@ -46,7 +47,8 @@ public:
             const auto& word = words[i];
 
             const auto reference = file.find(word);
-            const auto result_swar = swar64_strstr_v2(file, word);
+            const auto result_swar64 = swar64_strstr_v2(file, word);
+            const auto result_swar32 = swar32_strstr_v2(file, word);
 #ifdef HAVE_SSE_INSTRUCTIONS
             const auto result_sse2 = sse2_strstr_v2(file, word);
             const auto result_sse41 = sse4_strstr(file, word);
@@ -66,11 +68,22 @@ public:
                 print_progress(i, n);
             }
 
-            if (reference != result_swar) {
+            if (reference != result_swar64) {
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
                 printf("%s: std::find result = %lu, swar= %lu\n",
-                    msg.data(), reference, result_swar);
+                    msg.data(), reference, result_swar64);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+
+            if (reference != result_swar32) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, swar= %lu\n",
+                    msg.data(), reference, result_swar32);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
 
