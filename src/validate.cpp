@@ -28,6 +28,9 @@
 #   include "avx512f-strstr.cpp"
 #   include "avx512f-strstr-v2.cpp"
 #endif
+#ifdef HAVE_NEON_INSTRUCTIONS
+#   include "neon-strstr-v2.cpp"
+#endif
 
 // ------------------------------------------------------------------------
 
@@ -63,6 +66,9 @@ public:
             const auto result_avx512f = avx512f_strstr(file, word);
             const auto result_avx512f_v2 = avx512f_strstr_v2(file, word);
 #endif
+#ifdef HAVE_NEON_INSTRUCTIONS
+            const auto result_neon_v2 = neon_strstr_v2(file, word);
+#endif
     
             if (i % 100 == 0) {
                 print_progress(i, n);
@@ -71,7 +77,7 @@ public:
             if (reference != result_swar64) {
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
-                printf("%s: std::find result = %lu, swar= %lu\n",
+                printf("%s: std::find result = %lu, swar64 = %lu\n",
                     msg.data(), reference, result_swar64);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
@@ -82,7 +88,7 @@ public:
             if (reference != result_swar32) {
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
-                printf("%s: std::find result = %lu, swar= %lu\n",
+                printf("%s: std::find result = %lu, swar32 = %lu\n",
                     msg.data(), reference, result_swar32);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
@@ -105,7 +111,7 @@ public:
             if (reference != result_sse41) {
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
-                printf("%s: std::find result = %lu, sse4_string = %lu\n",
+                printf("%s: std::find result = %lu, sse41_string = %lu\n",
                     msg.data(), reference, result_sse41);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
@@ -116,7 +122,7 @@ public:
             if (reference != result_sse41unrl) {
                 putchar('\n');
                 const auto msg = ansi::seq("ERROR", ansi::RED);
-                printf("%s: std::find result = %lu, sse4_unrolled = %lu\n",
+                printf("%s: std::find result = %lu, sse41_unrolled = %lu\n",
                     msg.data(), reference, result_sse41);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
@@ -183,6 +189,19 @@ public:
                 return false;
             }
 #endif // HAVE_AVX512F_INSTRUCTIONS
+
+#ifdef HAVE_NEON_INSTRUCTIONS
+            if (reference != result_neon_v2) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, neon_strstr_v2 = %lu\n",
+                    msg.data(), reference, result_neon_v2);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+#endif // HAVE_NEON_INSTRUCTIONS
         }
 
         print_progress(n, n);

@@ -5,6 +5,7 @@ size_t FORCE_INLINE neon_strstr_anysize(const char* s, size_t n, const char* nee
 
     const uint8x16_t first = vdupq_n_u8(needle[0]);
     const uint8x16_t last  = vdupq_n_u8(needle[k - 1]);
+    const uint8x8_t  half  = vdup_n_u8(0x0f);
 
     const uint8_t* ptr = reinterpret_cast<const uint8_t*>(s);
 
@@ -21,7 +22,7 @@ size_t FORCE_INLINE neon_strstr_anysize(const char* s, size_t n, const char* nee
         const uint8x16_t eq_first = vceqq_u8(first, block_first);
         const uint8x16_t eq_last  = vceqq_u8(last, block_last);
         const uint8x16_t pred_16  = vandq_u8(eq_first, eq_last);
-        const uint8x8_t pred_8    = vorr_u8(vget_low_u8(pred_16), vget_high_u8(pred_16));
+        const uint8x8_t pred_8    = vbsl_u8(half, vget_low_u8(pred_16), vget_high_u8(pred_16));
 
         vst1_u8(tmp, pred_8);
 
@@ -30,11 +31,15 @@ size_t FORCE_INLINE neon_strstr_anysize(const char* s, size_t n, const char* nee
         }
 
         for (int j=0; j < 8; j++) {
-            if (tmp[j]) {
+            if (tmp[j] & 0x0f) {
                 if (memcmp(s + i + j + 1, needle + 1, k - 2) == 0) {
                     return i + j;
                 }
+            }
+        }
 
+        for (int j=0; j < 8; j++) {
+            if (tmp[j] & 0xf0) {
                 if (memcmp(s + i + j + 1 + 8, needle + 1, k - 2) == 0) {
                     return i + j + 8;
                 }
@@ -55,6 +60,7 @@ size_t FORCE_INLINE neon_strstr_memcmp(const char* s, size_t n, const char* need
 
     const uint8x16_t first = vdupq_n_u8(needle[0]);
     const uint8x16_t last  = vdupq_n_u8(needle[k - 1]);
+    const uint8x8_t  half  = vdup_n_u8(0x0f);
 
     const uint8_t* ptr = reinterpret_cast<const uint8_t*>(s);
 
@@ -71,7 +77,7 @@ size_t FORCE_INLINE neon_strstr_memcmp(const char* s, size_t n, const char* need
         const uint8x16_t eq_first = vceqq_u8(first, block_first);
         const uint8x16_t eq_last  = vceqq_u8(last, block_last);
         const uint8x16_t pred_16  = vandq_u8(eq_first, eq_last);
-        const uint8x8_t pred_8    = vorr_u8(vget_low_u8(pred_16), vget_high_u8(pred_16));
+        const uint8x8_t pred_8    = vbsl_u8(half, vget_low_u8(pred_16), vget_high_u8(pred_16));
 
         vst1_u8(tmp, pred_8);
 
@@ -80,11 +86,15 @@ size_t FORCE_INLINE neon_strstr_memcmp(const char* s, size_t n, const char* need
         }
 
         for (int j=0; j < 8; j++) {
-            if (tmp[j]) {
+            if (tmp[j] & 0x0f) {
                 if (memcmp_fun(s + i + j + 1, needle + 1)) {
                     return i + j;
                 }
+            }
+        }
 
+        for (int j=0; j < 8; j++) {
+            if (tmp[j] & 0xf0) {
                 if (memcmp_fun(s + i + j + 1 + 8, needle + 1)) {
                     return i + j + 8;
                 }

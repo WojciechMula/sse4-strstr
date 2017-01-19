@@ -47,15 +47,15 @@ public:
 
     bool operator()() {
 
-        const bool measure_libc       = !true;
+        const bool measure_libc       = true;
 #ifdef __GNUC__
         // GNU std::string::find was proven to be utterly slow,
         // don't waste our time on reconfirming that fact.
         const bool measure_stdstring  = false;
 #else
-        const bool measure_stdstring  = !true;
+        const bool measure_stdstring  = true;
 #endif
-        const bool measure_swar64     = !true;
+        const bool measure_swar64     = true;
         const bool measure_swar32     = true;
 #ifdef HAVE_SSE_INSTRUCTIONS
         const bool measure_sse2       = true;
