@@ -103,7 +103,8 @@ test_arm: unittests_arm validate_arm data/words data/i386.txt
 	./validate_arm data/i386.txt data/words
 
 run_arm: speedup_arm data/words data/i386.txt
-	./$< data/i386.txt data/words
+	# my Raspberry Pi is slow, repeat count = 1 is enough
+	./$< data/i386.txt data/words 1
 
 clean:
 	rm -f $(ALL)

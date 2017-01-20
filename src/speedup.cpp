@@ -38,19 +38,20 @@
 #include "application_base.cpp"
 
 class Application final: public ApplicationBase {
-    
+
     std::size_t count;
 
 public:
-    Application() : count(1) { // TODO: allow to set from cmd line
-    }
+    Application() : count(1) {}
 
     bool operator()() {
 
         const bool measure_libc       = true;
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(HAVE_NEON_INSTRUCTIONS)
         // GNU std::string::find was proven to be utterly slow,
         // don't waste our time on reconfirming that fact.
+        //
+        // (On Raspberry Pi it's fast, though)
         const bool measure_stdstring  = false;
 #else
         const bool measure_stdstring  = true;
@@ -247,9 +248,16 @@ public:
         return true;
     }
 
-    
+
+    void prepare(const std::string& file_name, const std::string& words_name, size_t cnt) {
+
+        ApplicationBase::prepare(file_name, words_name);
+        count = cnt;
+    }
+
+
     void print_help(const char* progname) {
-        std::printf("%s file words\n", progname);
+        std::printf("%s file words [count]\n", progname);
         std::puts("");
         std::puts(
             "Measure speed of following procedures: "
@@ -280,6 +288,7 @@ public:
         std::puts("");
         std::puts("  file  - arbitrary file");
         std::puts("  words - list of words in separate lines");
+        std::puts("  count - repeat count (optional, default = 10)");
     }
 
 
@@ -288,7 +297,7 @@ private:
     void measure(T_FIND find, size_t count) {
 
         size_t result = 0;
- 
+
         const auto t1 = std::chrono::high_resolution_clock::now();
 
         while (count != 0) {
@@ -311,9 +320,18 @@ int main(int argc, char* argv[]) {
 
     Application app;
 
-    if (argc == 3) {
+    if (argc == 3 || argc == 4) {
         try {
-            app.prepare(argv[1], argv[2]);
+            size_t count = 10;
+            if (argc == 4) {
+                size_t tmp = atoi(argv[3]);
+                if (tmp > 0) {
+                    count = tmp;
+                } else {
+                    printf("repeat count '%s' invalid, keeping default %d\n", argv[3], count);
+                }
+            }
+            app.prepare(argv[1], argv[2], count);
 
             return app() ? EXIT_SUCCESS : EXIT_FAILURE;
 
@@ -321,7 +339,7 @@ int main(int argc, char* argv[]) {
 
             const auto msg = ansi::seq("Error: ", ansi::RED);
             printf("%s: %s\n", msg.data(), err.message.data());
-            
+
             return EXIT_FAILURE;
         }
     } else {
