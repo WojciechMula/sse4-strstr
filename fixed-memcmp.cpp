@@ -1,19 +1,23 @@
 namespace {
 
+    MAYBE_UNUSED
     bool always_true(const char*, const char*) {
         return true;
     }
 
+    MAYBE_UNUSED
     bool memcmp1(const char* a, const char* b) {
         return a[0] == b[0];
     }
 
+    MAYBE_UNUSED
     bool memcmp2(const char* a, const char* b) {
         const uint16_t A = *reinterpret_cast<const uint16_t*>(a);
         const uint16_t B = *reinterpret_cast<const uint16_t*>(b);
         return A == B;
     }
 
+    MAYBE_UNUSED
     bool memcmp3(const char* a, const char* b) {
 
         const uint32_t A = *reinterpret_cast<const uint32_t*>(a);
@@ -21,6 +25,7 @@ namespace {
         return (A & 0x00ffffff) == (B & 0x00ffffff);
     }
 
+    MAYBE_UNUSED
     bool memcmp4(const char* a, const char* b) {
 
         const uint32_t A = *reinterpret_cast<const uint32_t*>(a);
@@ -28,6 +33,7 @@ namespace {
         return A == B;
     }
 
+    MAYBE_UNUSED
     bool memcmp5(const char* a, const char* b) {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
@@ -35,6 +41,7 @@ namespace {
         return ((A ^ B) & 0x000000fffffffffflu) == 0;
     }
 
+    MAYBE_UNUSED
     bool memcmp6(const char* a, const char* b) {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
@@ -42,6 +49,7 @@ namespace {
         return ((A ^ B) & 0x0000fffffffffffflu) == 0;
     }
 
+    MAYBE_UNUSED
     bool memcmp7(const char* a, const char* b) {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
@@ -49,6 +57,7 @@ namespace {
         return ((A ^ B) & 0x00fffffffffffffflu) == 0;
     }
 
+    MAYBE_UNUSED
     bool memcmp8(const char* a, const char* b) {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
@@ -56,6 +65,7 @@ namespace {
         return A == B;
     }
 
+    MAYBE_UNUSED
     bool memcmp9(const char* a, const char* b) {
 
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
@@ -63,6 +73,7 @@ namespace {
         return (A == B) & (a[8] == b[8]);
     }
 
+    MAYBE_UNUSED
     bool memcmp10(const char* a, const char* b) {
 
         const uint64_t Aq = *reinterpret_cast<const uint64_t*>(a);
@@ -72,6 +83,7 @@ namespace {
         return (Aq == Bq) & (Aw == Bw);
     }
 
+    MAYBE_UNUSED
     bool memcmp11(const char* a, const char* b) {
 
         const uint64_t Aq = *reinterpret_cast<const uint64_t*>(a);
@@ -81,6 +93,7 @@ namespace {
         return (Aq == Bq) & ((Ad & 0x00ffffff) == (Bd & 0x00ffffff));
     }
 
+    MAYBE_UNUSED
     bool memcmp12(const char* a, const char* b) {
 
         const uint64_t Aq = *reinterpret_cast<const uint64_t*>(a);
