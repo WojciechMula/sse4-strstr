@@ -1,3 +1,5 @@
+// #define USE_SIMPLE_MEMCMP // when defined simpler expressions are used
+
 namespace {
 
     MAYBE_UNUSED
@@ -20,9 +22,13 @@ namespace {
     MAYBE_UNUSED
     bool memcmp3(const char* a, const char* b) {
 
+#ifdef USE_SIMPLE_MEMCMP
+        return memcmp2(a, b) & memcmp1(a + 2, b + 2);
+#else
         const uint32_t A = *reinterpret_cast<const uint32_t*>(a);
         const uint32_t B = *reinterpret_cast<const uint32_t*>(b);
         return (A & 0x00ffffff) == (B & 0x00ffffff);
+#endif
     }
 
     MAYBE_UNUSED
@@ -36,25 +42,37 @@ namespace {
     MAYBE_UNUSED
     bool memcmp5(const char* a, const char* b) {
 
+#ifdef USE_SIMPLE_MEMCMP
+        return memcmp4(a, b) & memcmp1(a + 4, b + 4);
+#else
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
         return ((A ^ B) & 0x000000fffffffffflu) == 0;
+#endif
     }
 
     MAYBE_UNUSED
     bool memcmp6(const char* a, const char* b) {
 
+#ifdef USE_SIMPLE_MEMCMP
+        return memcmp4(a, b) & memcmp2(a + 4, b + 4);
+#else
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
         return ((A ^ B) & 0x0000fffffffffffflu) == 0;
+#endif
     }
 
     MAYBE_UNUSED
     bool memcmp7(const char* a, const char* b) {
 
+#ifdef USE_SIMPLE_MEMCMP 
+        return memcmp4(a, b) & memcmp3(a + 4, b + 4);
+#else
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
         return ((A ^ B) & 0x00fffffffffffffflu) == 0;
+#endif
     }
 
     MAYBE_UNUSED
@@ -86,11 +104,15 @@ namespace {
     MAYBE_UNUSED
     bool memcmp11(const char* a, const char* b) {
 
+#ifdef USE_SIMPLE_MEMCMP
+        return memcmp8(a, b) & memcmp3(a + 8, b + 8);
+#else
         const uint64_t Aq = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t Bq = *reinterpret_cast<const uint64_t*>(b);
         const uint32_t Ad = *reinterpret_cast<const uint32_t*>(a + 8);
         const uint32_t Bd = *reinterpret_cast<const uint32_t*>(b + 8);
         return (Aq == Bq) & ((Ad & 0x00ffffff) == (Bd & 0x00ffffff));
+#endif
     }
 
     MAYBE_UNUSED

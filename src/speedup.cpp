@@ -56,7 +56,13 @@ public:
 #else
         const bool measure_stdstring  = true;
 #endif
+#if defined(HAVE_NEON_INSTRUCTIONS)
+        // On Raspberry Pi it's terriby slow
+        const bool measure_swar64     = false;
+#else
         const bool measure_swar64     = true;
+#endif
+
         const bool measure_swar32     = true;
 #ifdef HAVE_SSE_INSTRUCTIONS
         const bool measure_sse2       = true;
