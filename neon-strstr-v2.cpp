@@ -30,21 +30,46 @@ size_t FORCE_INLINE neon_strstr_anysize(const char* s, size_t n, const char* nee
             continue;
         }
 
+#if 0
         for (int j=0; j < 8; j++) {
-            if (tmp[j] & 0x0f) {
-                if (memcmp(s + i + j + 1, needle + 1, k - 2) == 0) {
-                    return i + j;
-                }
+            if ((tmp[j] & 0x0f) && (memcmp(s + i + j + 1, needle + 1, k - 2) == 0)) {
+                return i + j;
             }
         }
 
         for (int j=0; j < 8; j++) {
-            if (tmp[j] & 0xf0) {
-                if (memcmp(s + i + j + 1 + 8, needle + 1, k - 2) == 0) {
-                    return i + j + 8;
-                }
+            if ((tmp[j] & 0xf0) && (memcmp(s + i + j + 1 + 8, needle + 1, k - 2) == 0)) {
+                return i + j + 8;
             }
         }
+#else
+        // the above loops unrolled
+        uint32_t v;
+
+#define RETURN_IF_EQ(MASK, SHIFT) \
+        if ((v & MASK) && memcmp(s + i + SHIFT + 1, needle + 1, k - 2) == 0) { \
+            return i + SHIFT; \
+        }
+
+#define COMPARE(MASK, WORD_IDX, SHIFT) \
+        v = word[WORD_IDX];      \
+        RETURN_IF_EQ(MASK, SHIFT + 0); \
+        v >>= 8; \
+        RETURN_IF_EQ(MASK, SHIFT + 1); \
+        v >>= 8; \
+        RETURN_IF_EQ(MASK, SHIFT + 2); \
+        v >>= 8; \
+        RETURN_IF_EQ(MASK, SHIFT + 3);
+
+        COMPARE(0x0f, 0,  0);
+        COMPARE(0x0f, 1,  4);
+        COMPARE(0xf0, 0,  8);
+        COMPARE(0xf0, 1, 12);
+
+#undef RETURN_IF_EQ
+#undef COMPARE
+
+#endif
     }
 
     return std::string::npos;
@@ -85,21 +110,46 @@ size_t FORCE_INLINE neon_strstr_memcmp(const char* s, size_t n, const char* need
             continue;
         }
 
+#if 0
         for (int j=0; j < 8; j++) {
-            if (tmp[j] & 0x0f) {
-                if (memcmp_fun(s + i + j + 1, needle + 1)) {
-                    return i + j;
-                }
+            if ((tmp[j] & 0x0f) && memcmp_fun(s + i + j + 1, needle + 1)) {
+                return i + j;
             }
         }
 
         for (int j=0; j < 8; j++) {
-            if (tmp[j] & 0xf0) {
-                if (memcmp_fun(s + i + j + 1 + 8, needle + 1)) {
-                    return i + j + 8;
-                }
+            if ((tmp[j] & 0xf0) && memcmp_fun(s + i + j + 1 + 8, needle + 1)) {
+                return i + j + 8;
             }
         }
+#else
+        // the above loops unrolled
+        uint32_t v;
+
+#define RETURN_IF_EQ(MASK, SHIFT) \
+        if ((v & MASK) && memcmp_fun(s + i + SHIFT + 1, needle + 1)) { \
+            return i + SHIFT; \
+        }
+
+#define COMPARE(MASK, WORD_IDX, SHIFT) \
+        v = word[WORD_IDX];      \
+        RETURN_IF_EQ(MASK, SHIFT + 0); \
+        v >>= 8; \
+        RETURN_IF_EQ(MASK, SHIFT + 1); \
+        v >>= 8; \
+        RETURN_IF_EQ(MASK, SHIFT + 2); \
+        v >>= 8; \
+        RETURN_IF_EQ(MASK, SHIFT + 3);
+
+        COMPARE(0x0f, 0,  0);
+        COMPARE(0x0f, 1,  4);
+        COMPARE(0xf0, 0,  8);
+        COMPARE(0xf0, 1, 12);
+
+#undef RETURN_IF_EQ
+#undef COMPARE
+
+#endif
     }
 
     return std::string::npos;
