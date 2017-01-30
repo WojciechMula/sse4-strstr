@@ -1,25 +1,25 @@
 ./speedup_arm data/i386.txt data/words 1
-std::strstr                             ... reference result = 810807651, time =   7.331399 s
-std::string::find                       ... reference result = 810807651, time =   4.175614 s
-SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.532945 s
-ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.321390 s
+std::strstr                             ... reference result = 810807651, time =   7.318775 s
+std::string::find                       ... reference result = 810807651, time =   4.171311 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.450585 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.299383 s
 ./speedup_arm data/i386.txt data/words 1
-std::strstr                             ... reference result = 810807651, time =   7.325151 s
-std::string::find                       ... reference result = 810807651, time =   4.189238 s
-SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.541453 s
-ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.325110 s
+std::strstr                             ... reference result = 810807651, time =   7.329223 s
+std::string::find                       ... reference result = 810807651, time =   4.188313 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.461333 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.305622 s
 ./speedup_arm data/i386.txt data/words 1
-std::strstr                             ... reference result = 810807651, time =   7.304316 s
-std::string::find                       ... reference result = 810807651, time =   4.174944 s
-SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.530987 s
-ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.319542 s
+std::strstr                             ... reference result = 810807651, time =   7.304049 s
+std::string::find                       ... reference result = 810807651, time =   4.172608 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.451913 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.300619 s
 ./speedup_arm data/i386.txt data/words 1
-std::strstr                             ... reference result = 810807651, time =   7.311069 s
-std::string::find                       ... reference result = 810807651, time =   4.172453 s
-SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.530201 s
-ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.318518 s
+std::strstr                             ... reference result = 810807651, time =   7.307621 s
+std::string::find                       ... reference result = 810807651, time =   4.176439 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.451030 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.299274 s
 ./speedup_arm data/i386.txt data/words 1
-std::strstr                             ... reference result = 810807651, time =   7.304523 s
-std::string::find                       ... reference result = 810807651, time =   4.174073 s
-SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.531116 s
-ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.317705 s
+std::strstr                             ... reference result = 810807651, time =   7.313498 s
+std::string::find                       ... reference result = 810807651, time =   4.175714 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   2.451439 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   1.298613 s

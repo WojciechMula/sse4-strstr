@@ -23,7 +23,7 @@ namespace {
     bool memcmp3(const char* a, const char* b) {
 
 #ifdef USE_SIMPLE_MEMCMP
-        return memcmp2(a, b) & memcmp1(a + 2, b + 2);
+        return memcmp2(a, b) && memcmp1(a + 2, b + 2);
 #else
         const uint32_t A = *reinterpret_cast<const uint32_t*>(a);
         const uint32_t B = *reinterpret_cast<const uint32_t*>(b);
@@ -43,7 +43,7 @@ namespace {
     bool memcmp5(const char* a, const char* b) {
 
 #ifdef USE_SIMPLE_MEMCMP
-        return memcmp4(a, b) & memcmp1(a + 4, b + 4);
+        return memcmp4(a, b) && memcmp1(a + 4, b + 4);
 #else
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
@@ -55,7 +55,7 @@ namespace {
     bool memcmp6(const char* a, const char* b) {
 
 #ifdef USE_SIMPLE_MEMCMP
-        return memcmp4(a, b) & memcmp2(a + 4, b + 4);
+        return memcmp4(a, b) && memcmp2(a + 4, b + 4);
 #else
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
@@ -67,7 +67,7 @@ namespace {
     bool memcmp7(const char* a, const char* b) {
 
 #ifdef USE_SIMPLE_MEMCMP 
-        return memcmp4(a, b) & memcmp3(a + 4, b + 4);
+        return memcmp4(a, b) && memcmp3(a + 4, b + 4);
 #else
         const uint64_t A = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t B = *reinterpret_cast<const uint64_t*>(b);
@@ -105,7 +105,7 @@ namespace {
     bool memcmp11(const char* a, const char* b) {
 
 #ifdef USE_SIMPLE_MEMCMP
-        return memcmp8(a, b) & memcmp3(a + 8, b + 8);
+        return memcmp8(a, b) && memcmp3(a + 8, b + 8);
 #else
         const uint64_t Aq = *reinterpret_cast<const uint64_t*>(a);
         const uint64_t Bq = *reinterpret_cast<const uint64_t*>(b);
