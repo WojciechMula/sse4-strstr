@@ -28,6 +28,9 @@
 #   include "avx512f-strstr.cpp"
 #   include "avx512f-strstr-v2.cpp"
 #endif
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+#   include "avx512bw-strstr-v2.cpp"
+#endif
 #ifdef HAVE_NEON_INSTRUCTIONS
 #   include "neon-strstr-v2.cpp"
 #endif
@@ -65,6 +68,9 @@ public:
 #ifdef HAVE_AVX512F_INSTRUCTIONS
             const auto result_avx512f = avx512f_strstr(file, word);
             const auto result_avx512f_v2 = avx512f_strstr_v2(file, word);
+#endif
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+            const auto result_avx512bw_v2 = avx512bw_strstr_v2(file, word);
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
             const auto result_neon_v2 = neon_strstr_v2(file, word);
@@ -189,6 +195,19 @@ public:
                 return false;
             }
 #endif // HAVE_AVX512F_INSTRUCTIONS
+
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+            if (reference != result_avx512bw_v2) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, avx512bw_strstr_v2 = %lu\n",
+                    msg.data(), reference, result_avx512bw_v2);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+#endif // HAVE_AVX512BW_INSTRUCTIONS
 
 #ifdef HAVE_NEON_INSTRUCTIONS
             if (reference != result_neon_v2) {

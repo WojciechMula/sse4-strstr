@@ -24,9 +24,11 @@
 #   include "avx2-strstr-v2.cpp"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
-#   include <utils/avx512.cpp>
 #   include "avx512f-strstr.cpp"
 #   include "avx512f-strstr-v2.cpp"
+#endif
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+#   include "avx512bw-strstr-v2.cpp"
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
 #   include <utils/neon.cpp>
@@ -101,6 +103,9 @@ int main() {
 #ifdef HAVE_AVX512F_INSTRUCTIONS
     bool test_avx512f    = true;
     bool test_avx512f_v2 = true;
+#endif
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+    bool test_avx512bw_v2 = true;
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
     bool test_neon_v2    = true;
@@ -207,6 +212,18 @@ int main() {
         };
 
         if (!tests.run("AVX512F (v2)", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+#endif
+
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+    if (test_avx512bw_v2) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return avx512bw_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("AVX512BW (v2)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }
