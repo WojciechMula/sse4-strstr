@@ -1,0 +1,30 @@
+std::strstr                             ... reference result = 810807651, time =   3.457578 s
+std::string::find                       ... reference result = 810807651, time =   1.821379 s
+SWAR 64-bit (generic)                   ... reference result = 810807651, time =   0.463006 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   0.810749 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   0.407214 s
+AArch64 64 bit (v2)                     ... reference result = 810807651, time =   0.279203 s
+std::strstr                             ... reference result = 810807651, time =   3.381364 s
+std::string::find                       ... reference result = 810807651, time =   1.813678 s
+SWAR 64-bit (generic)                   ... reference result = 810807651, time =   0.462694 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   0.810882 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   0.406888 s
+AArch64 64 bit (v2)                     ... reference result = 810807651, time =   0.278970 s
+std::strstr                             ... reference result = 810807651, time =   4.118293 s
+std::string::find                       ... reference result = 810807651, time =   1.822696 s
+SWAR 64-bit (generic)                   ... reference result = 810807651, time =   0.463028 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   0.810933 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   0.407296 s
+AArch64 64 bit (v2)                     ... reference result = 810807651, time =   0.279606 s
+std::strstr                             ... reference result = 810807651, time =   3.375462 s
+std::string::find                       ... reference result = 810807651, time =   1.821449 s
+SWAR 64-bit (generic)                   ... reference result = 810807651, time =   0.462863 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   0.811320 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   0.407274 s
+AArch64 64 bit (v2)                     ... reference result = 810807651, time =   0.279285 s
+std::strstr                             ... reference result = 810807651, time =   3.378566 s
+std::string::find                       ... reference result = 810807651, time =   1.825054 s
+SWAR 64-bit (generic)                   ... reference result = 810807651, time =   0.462957 s
+SWAR 32-bit (generic)                   ... reference result = 810807651, time =   0.811188 s
+ARM Neon 32 bit (v2)                    ... reference result = 810807651, time =   0.407364 s
+AArch64 64 bit (v2)                     ... reference result = 810807651, time =   0.279490 s
