@@ -68,27 +68,28 @@ size_t FORCE_INLINE aarch64_strstr_memcmp(const char* s, size_t n, const char* n
         const uint8x16_t pred_16  = vandq_u8(eq_first, eq_last);
 
         uint64_t mask;
+        int j;
 
         mask = vgetq_lane_u64(vreinterpretq_u64_u8(pred_16), 0);
-        if (mask) {
-            for (int j=0; j < 8; j++) {
-                if ((mask & 0xff) && (memcmp_fun(s + i + j + 1, needle + 1))) {
-                    return i + j;
-                }
-
-                mask >>= 8;
+        j = 0;
+        while (mask) {
+            if ((mask & 0xff) && (memcmp_fun(s + i + j + 1, needle + 1))) {
+                return i + j;
             }
+
+            mask >>= 8;
+            j += 1;
         }
 
         mask = vgetq_lane_u64(vreinterpretq_u64_u8(pred_16), 1);
-        if (mask) {
-            for (int j=0; j < 8; j++) {
-                if ((mask & 0xff) && (memcmp_fun(s + i + j + 8 + 1, needle + 1))) {
-                    return i + j + 8;
-                }
-
-                mask >>= 8;
+        j = 0;
+        while (mask) {
+            if ((mask & 0xff) && (memcmp_fun(s + i + j + 8 + 1, needle + 1))) {
+                return i + j + 8;
             }
+
+            mask >>= 8;
+            j += 1;
         }
     }
 
