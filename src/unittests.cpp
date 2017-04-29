@@ -34,6 +34,9 @@
 #   include <utils/neon.cpp>
 #   include "neon-strstr-v2.cpp"
 #endif
+#ifdef HAVE_AARCH64_ARCHITECTURE
+#   include "aarch64-strstr-v2.cpp"
+#endif
 
 class UnitTests final {
 
@@ -109,6 +112,9 @@ int main() {
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
     bool test_neon_v2    = true;
+#endif
+#ifdef HAVE_AARCH64_ARCHITECTURE
+    bool test_aarch64_v2 = true;
 #endif
 
     if (test_swar64) {
@@ -236,6 +242,18 @@ int main() {
         };
 
         if (!tests.run("ARM Neon 32 bit (v2)", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+#endif
+
+#ifdef HAVE_AARCH64_ARCHITECTURE
+    if (test_aarch64_v2) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return aarch64_strstr_v2(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("AArch64 64 bit (v2)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }

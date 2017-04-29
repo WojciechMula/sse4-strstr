@@ -17,5 +17,9 @@ speedup_arm
 unittests_arm
 validate_arm
 
+speedup_aarch64
+unittests_aarch64
+validate_aarch64
+
 data/i386.txt
 data/words

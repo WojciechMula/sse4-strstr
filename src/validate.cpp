@@ -34,6 +34,9 @@
 #ifdef HAVE_NEON_INSTRUCTIONS
 #   include "neon-strstr-v2.cpp"
 #endif
+#ifdef HAVE_AARCH64_ARCHITECTURE
+#   include "aarch64-strstr-v2.cpp"
+#endif
 
 // ------------------------------------------------------------------------
 
@@ -74,6 +77,9 @@ public:
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
             const auto result_neon_v2 = neon_strstr_v2(file, word);
+#endif
+#ifdef HAVE_AARCH64_ARCHITECTURE
+            const auto result_aarch64_v2 = aarch64_strstr_v2(file, word);
 #endif
     
             if (i % 100 == 0) {
@@ -221,6 +227,19 @@ public:
                 return false;
             }
 #endif // HAVE_NEON_INSTRUCTIONS
+
+#ifdef HAVE_AARCH64_ARCHITECTURE
+            if (reference != result_aarch64_v2) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, aarch64_strstr_v2 = %lu\n",
+                    msg.data(), reference, result_aarch64_v2);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+#endif // HAVE_AARCH64_ARCHITECTURE
         }
 
         print_progress(n, n);

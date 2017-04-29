@@ -9,6 +9,7 @@ FLAGS_AVX2=$(FLAGS_INTEL) -mavx2 -DHAVE_AVX2_INSTRUCTIONS
 FLAGS_AVX512F=$(FLAGS_INTEL) -mavx512f -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS
 FLAGS_AVX512BW=$(FLAGS_INTEL) -mavx512bw -DHAVE_AVX2_INSTRUCTIONS -DHAVE_AVX512F_INSTRUCTIONS -DHAVE_AVX512BW_INSTRUCTIONS
 FLAGS_ARM=$(FLAGS) -mfpu=neon -DHAVE_NEON_INSTRUCTIONS
+FLAGS_AARCH64=$(FLAGS) -DHAVE_NEON_INSTRUCTIONS -DHAVE_AARCH64_ARCHITECTURE
 
 DEPS=utils/ansi.cpp utils/bits.cpp common.h fixed-memcmp.cpp
 DEPS_SCALAR=swar64-strstr-v2.cpp swar32-strstr-v2.cpp
@@ -17,6 +18,7 @@ DEPS_AVX2=avx2-strstr.cpp avx2-strstr-v2.cpp utils/avx2.cpp $(DEPS_SSE4)
 DEPS_AVX512F=avx512f-strstr.cpp avx512f-strstr-v2.cpp utils/avx512.cpp $(DEPS_AVX2)
 DEPS_AVX512BW=avx512bw-strstr-v2.cpp utils/avx512.cpp $(DEPS_AVX512F)
 DEPS_ARM=neon-strstr-v2.cpp $(DEPS) $(DEPS_SCALAR)
+DEPS_AARCH64=aarch64-strstr-v2.cpp $(DEPS_ARM)
 
 ALL_INTEL=\
     validate \
@@ -36,7 +38,12 @@ ALL_ARM=\
     unittests_arm \
     speedup_arm
 
-ALL=$(ALL_INTEL) $(ALL_ARM)
+ALL_AARCH64=\
+    validate_aarch64 \
+    unittests_aarch64 \
+    speedup_aarch64
+
+ALL=$(ALL_INTEL) $(ALL_ARM) $(ALL_AARCH64)
 
 all: $(ALL_INTEL)
 
@@ -82,6 +89,15 @@ speedup_arm: src/speedup.cpp src/application_base.cpp $(DEPS_ARM)
 unittests_arm: src/unittests.cpp $(DEPS_ARM)
 	$(CXX) $(FLAGS_ARM) src/unittests.cpp -o $@
 
+validate_aarch64: src/validate.cpp src/application_base.cpp $(DEPS_AARCH64)
+	$(CXX) $(FLAGS_AARCH64) src/validate.cpp -o $@
+
+speedup_aarch64: src/speedup.cpp src/application_base.cpp $(DEPS_AARCH64)
+	$(CXX) $(FLAGS_AARCH64) -DNDEBUG  src/speedup.cpp -o $@
+
+unittests_aarch64: src/unittests.cpp $(DEPS_ARM)
+	$(CXX) $(FLAGS_AARCH64) src/unittests.cpp -o $@
+
 data/i386.txt:
 	wget http://css.csail.mit.edu/6.858/2013/readings/i386.txt
 	mv i386.txt data/i386.txt
@@ -120,6 +136,13 @@ test_arm: unittests_arm validate_arm data/words data/i386.txt
 
 run_arm: speedup_arm data/words data/i386.txt
 	# my Raspberry Pi is slow, repeat count = 1 is enough
+	./$< data/i386.txt data/words 1
+
+test_aarch64: unittests_aarch64 validate_aarch64 data/words data/i386.txt
+	./unittests_aarch64
+	./validate_aarch64 data/i386.txt data/words
+
+run_aarch64: speedup_aarch64 data/words data/i386.txt
 	./$< data/i386.txt data/words 1
 
 clean:

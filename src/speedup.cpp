@@ -31,6 +31,9 @@
 #   include <utils/neon.cpp>
 #   include "neon-strstr-v2.cpp"
 #endif
+#ifdef HAVE_AARCH64_ARCHITECTURE
+#   include "aarch64-strstr-v2.cpp"
+#endif
 
 // ------------------------------------------------------------------------
 
@@ -56,8 +59,9 @@ public:
 #else
         const bool measure_stdstring  = true;
 #endif
-#if defined(HAVE_NEON_INSTRUCTIONS)
-        // On Raspberry Pi it's terriby slow
+#if defined(HAVE_NEON_INSTRUCTIONS) && !defined(HAVE_AARCH64_ARCHITECTURE)
+        // On Raspberry Pi it's terriby slow, but on Aarch64
+        // the 64-bit procedure is pretty fast
         const bool measure_swar64     = false;
 #else
         const bool measure_swar64     = true;
@@ -80,6 +84,9 @@ public:
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
         const bool measure_neon_v2    = true;
+#endif
+#ifdef HAVE_AARCH64_ARCHITECTURE
+        const bool measure_aarch64_v2 = true;
 #endif
 
         if (measure_libc) {
@@ -251,6 +258,20 @@ public:
         }
 #endif
 
+#ifdef HAVE_AARCH64_ARCHITECTURE
+        if (measure_aarch64_v2) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return aarch64_strstr_v2(s, neddle);
+            };
+
+            printf("%-40s... ", "AArch64 64 bit (v2)");
+            fflush(stdout);
+            measure(find, count);
+        }
+#endif
+
         return true;
     }
 
@@ -287,6 +308,9 @@ public:
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
             ", ARM Neon 32 bit (v2)"
+#endif
+#ifdef HAVE_AARCH64_ARCHITECTURE
+            ", AArch64 64 bit (v2)"
 #endif
         );
         std::puts("");
