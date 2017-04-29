@@ -1,6 +1,6 @@
-speedup
-unittests
-validate
+speedup_sse4
+unittests_sse4
+validate_sse4
 
 speedup_avx2
 unittests_avx2

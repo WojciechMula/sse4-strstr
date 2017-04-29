@@ -21,9 +21,9 @@ DEPS_ARM=neon-strstr-v2.cpp $(DEPS) $(DEPS_SCALAR)
 DEPS_AARCH64=aarch64-strstr-v2.cpp $(DEPS_ARM)
 
 ALL_INTEL=\
-    validate \
-    speedup \
-    unittests \
+    validate_sse4 \
+    speedup_sse4 \
+    unittests_sse4 \
     validate_avx2 \
     speedup_avx2 \
     unittests_avx2 \
@@ -45,15 +45,31 @@ ALL_AARCH64=\
 
 ALL=$(ALL_INTEL) $(ALL_ARM) $(ALL_AARCH64)
 
-all: $(ALL_INTEL)
+all:
+	@echo "select target test_ARCH or run_ARCH"
+	@echo
+	@echo "test_ARCH runs unit and validation tests"
+	@echo "run_ARCH  runs performance tests"
+	@echo
+	@echo "ARCH might be:"
+	@echo "* sse4"
+	@echo "* avx2"
+	@echo "* avx512f"
+	@echo "* avx512bw"
+	@echo "* arm"
+	@echo "* aarch64"
 
-validate: src/validate.cpp src/application_base.cpp $(DEPS_SSE4)
+build_intel:   $(ALL_INTEL)
+build_arm:     $(ALL_ARM)
+build_aarch64: $(ALL_AARCH64)
+
+validate_sse4: src/validate.cpp src/application_base.cpp $(DEPS_SSE4)
 	$(CXX) $(FLAGS_SSE4) src/validate.cpp -o $@
 
-speedup: src/speedup.cpp src/application_base.cpp $(DEPS_SSE4)
+speedup_sse4: src/speedup.cpp src/application_base.cpp $(DEPS_SSE4)
 	$(CXX) $(FLAGS_SSE4) -DNDEBUG src/speedup.cpp -o $@
 
-unittests: src/unittests.cpp $(DEPS_SSE4)
+unittests_sse4: src/unittests.cpp $(DEPS_SSE4)
 	$(CXX) $(FLAGS_SSE4) src/unittests.cpp -o $@
 
 validate_avx2: src/validate.cpp src/application_base.cpp $(DEPS_AVX2)
@@ -105,12 +121,12 @@ data/i386.txt:
 data/words: data/i386.txt
 	sh make_words.sh $^ $@
 
-test: unittests validate data/words data/i386.txt
-	./unittests
-	./validate data/i386.txt data/words
+test_sse4: unittests_sse4 validate_sse4 data/words data/i386.txt
+	./unittests_sse4
+	./validate_sse4 data/i386.txt data/words
 
-run: speedup data/words data/i386.txt
-	./speedup data/i386.txt data/words
+run_sse4: speedup_sse4 data/words data/i386.txt
+	./speedup_sse4 data/i386.txt data/words
 
 test_avx2: unittests_avx2 validate_avx2 data/words data/i386.txt
 	./unittests_avx2
