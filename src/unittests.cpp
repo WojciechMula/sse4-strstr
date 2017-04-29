@@ -5,38 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "common.h"
+#include "all.h"
+
 #include <utils/ansi.cpp>
-#include <utils/bits.cpp>
-#include "fixed-memcmp.cpp"
-#include "swar64-strstr-v2.cpp"
-#include "swar32-strstr-v2.cpp"
-#ifdef HAVE_SSE_INSTRUCTIONS
-#   include <utils/sse.cpp>
-#   include "sse4-strstr.cpp"
-#   include "sse4-strstr-unrolled.cpp"
-#   include "sse4.2-strstr.cpp"
-#   include "sse2-strstr.cpp"
-#endif
-#ifdef HAVE_AVX2_INSTRUCTIONS
-#   include <utils/avx2.cpp>
-#   include "avx2-strstr.cpp"
-#   include "avx2-strstr-v2.cpp"
-#endif
-#ifdef HAVE_AVX512F_INSTRUCTIONS
-#   include "avx512f-strstr.cpp"
-#   include "avx512f-strstr-v2.cpp"
-#endif
-#ifdef HAVE_AVX512BW_INSTRUCTIONS
-#   include "avx512bw-strstr-v2.cpp"
-#endif
-#ifdef HAVE_NEON_INSTRUCTIONS
-#   include <utils/neon.cpp>
-#   include "neon-strstr-v2.cpp"
-#endif
-#ifdef HAVE_AARCH64_ARCHITECTURE
-#   include "aarch64-strstr-v2.cpp"
-#endif
 
 class UnitTests final {
 
