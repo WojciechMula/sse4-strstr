@@ -46,10 +46,12 @@ public:
         const bool measure_sse41      = true;
         const bool measure_sse41unrl  = true;
         const bool measure_sse42      = true;
+        const bool measure_sse_naive  = true;
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
         const bool measure_avx2       = true;
         const bool measure_avx2_v2    = true;
+        const bool measure_avx2_naive = true;
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
         const bool measure_avx512f    = true;
@@ -163,6 +165,18 @@ public:
             fflush(stdout);
             measure(find, count);
         }
+
+        if (measure_sse_naive) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return sse_naive_strstr(s, neddle);
+            };
+
+            printf("%-40s... ", "SSE (naive)");
+            fflush(stdout);
+            measure(find, count);
+        }
 #endif
 
 #ifdef HAVE_AVX2_INSTRUCTIONS
@@ -186,6 +200,18 @@ public:
             };
 
             printf("%-40s... ", "AVX2 (generic)");
+            fflush(stdout);
+            measure(find, count);
+        }
+
+        if (measure_avx2_naive) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return avx2_naive_strstr(s, neddle);
+            };
+
+            printf("%-40s... ", "AVX2 (naive)");
             fflush(stdout);
             measure(find, count);
         }

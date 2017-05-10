@@ -30,10 +30,11 @@ public:
             const auto result_swar64 = swar64_strstr_v2(file, word);
             const auto result_swar32 = swar32_strstr_v2(file, word);
 #ifdef HAVE_SSE_INSTRUCTIONS
-            const auto result_sse2 = sse2_strstr_v2(file, word);
-            const auto result_sse41 = sse4_strstr(file, word);
+            const auto result_sse2      = sse2_strstr_v2(file, word);
+            const auto result_sse41     = sse4_strstr(file, word);
             const auto result_sse41unrl = sse4_strstr_unrolled(file, word);
-            const auto result_sse42 = sse42_strstr(file, word);
+            const auto result_sse42     = sse42_strstr(file, word);
+            const auto result_sse_naive = sse_naive_strstr(file, word);
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
             const auto result_avx2    = avx2_strstr(file, word);
@@ -118,6 +119,17 @@ public:
                 const auto msg = ansi::seq("ERROR", ansi::RED);
                 printf("%s: std::find result = %lu, sse42_string = %lu\n",
                     msg.data(), reference, result_sse42);
+
+                printf("word: '%s' (length %lu)\n", word.data(), word.size());
+
+                return false;
+            }
+
+            if (reference != result_sse_naive) {
+                putchar('\n');
+                const auto msg = ansi::seq("ERROR", ansi::RED);
+                printf("%s: std::find result = %lu, sse_naive_strstr = %lu\n",
+                    msg.data(), reference, result_sse_naive);
 
                 printf("word: '%s' (length %lu)\n", word.data(), word.size());
 

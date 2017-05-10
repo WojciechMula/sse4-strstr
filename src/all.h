@@ -9,11 +9,13 @@
 #   include "sse4-strstr-unrolled.cpp"
 #   include "sse4.2-strstr.cpp"
 #   include "sse2-strstr.cpp"
+#   include "sse-naive-strstr.cpp"
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
 #   include "avx2-strstr.cpp"
 #   include "avx2-strstr-v2.cpp"
+#   include "avx2-naive-strstr.cpp"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 #   include "avx512f-strstr.cpp"

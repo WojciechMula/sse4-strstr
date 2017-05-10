@@ -69,6 +69,7 @@ int main() {
     bool test_sse41unrl  = true;
     bool test_sse42      = true;
     bool test_sse_v2     = true;
+    bool test_sse_naive  = true;
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
     bool test_avx2       = true;
@@ -145,6 +146,16 @@ int main() {
         };
 
         if (!tests.run("SSE4.2", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+    if (test_sse_naive) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return sse_naive_strstr(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("SSE naive", wrp)) {
             ret = EXIT_FAILURE;
         }
     }
