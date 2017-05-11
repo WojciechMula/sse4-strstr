@@ -1,6 +1,7 @@
 #include "common.h"
 #include <utils/bits.cpp>
 #include "fixed-memcmp.cpp"
+#include "scalar.cpp"
 #include "swar64-strstr-v2.cpp"
 #include "swar32-strstr-v2.cpp"
 #ifdef HAVE_SSE_INSTRUCTIONS

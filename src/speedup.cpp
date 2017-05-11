@@ -22,6 +22,7 @@ public:
 
     bool operator()() {
 
+        const bool measure_scalar     = true;
         const bool measure_libc       = true;
 #if defined(__GNUC__) && !defined(HAVE_NEON_INSTRUCTIONS)
         // GNU std::string::find was proven to be utterly slow,
@@ -63,6 +64,18 @@ public:
 #ifdef HAVE_AARCH64_ARCHITECTURE
         const bool measure_aarch64_v2 = true;
 #endif
+
+        if (measure_scalar) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return strstr_naive(s.data(), s.size(), neddle.data(), neddle.size());
+            };
+
+            printf("%-40s... ", "naive scalar");
+            fflush(stdout);
+            measure(find, count);
+        }
 
         if (measure_libc) {
 
