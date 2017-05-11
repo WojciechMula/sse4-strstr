@@ -53,6 +53,7 @@ public:
         const bool measure_avx2         = true;
         const bool measure_avx2_v2      = true;
         const bool measure_avx2_naive   = true;
+        const bool measure_avx2_naive_unrolled   = true;
         const bool measure_avx2_naive64 = true;
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
@@ -226,6 +227,18 @@ public:
             };
 
             printf("%-40s... ", "AVX2 (naive)");
+            fflush(stdout);
+            measure(find, count);
+        }
+
+        if (measure_avx2_naive_unrolled) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return avx2_naive_unrolled_strstr(s, neddle);
+            };
+
+            printf("%-40s... ", "AVX2 (naive unrolled)");
             fflush(stdout);
             measure(find, count);
         }

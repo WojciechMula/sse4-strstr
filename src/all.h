@@ -18,6 +18,7 @@
 #   include "avx2-strstr-v2.cpp"
 #   include "avx2-naive-strstr.cpp"
 #   include "avx2-naive-strstr64.cpp"
+#   include "avx2-naive-unrolled-strstr.cpp"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
 #   include "avx512f-strstr.cpp"
