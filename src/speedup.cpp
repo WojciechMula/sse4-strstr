@@ -60,6 +60,9 @@ public:
         const bool measure_avx512f    = true;
         const bool measure_avx512f_v2 = true;
 #endif
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+        const bool measure_avx512bw_v2 = true;
+#endif
 #ifdef HAVE_NEON_INSTRUCTIONS
         const bool measure_neon_v2    = true;
 #endif
@@ -277,6 +280,20 @@ public:
             };
 
             printf("%-40s... ", "AVX512F (generic)");
+            fflush(stdout);
+            measure(find, count);
+        }
+#endif
+
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+	if (measure_avx512bw_v2) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return avx512bw_strstr_v2(s, neddle);
+            };
+
+            printf("%-40s... ", "AVX512BW (generic)");
             fflush(stdout);
             measure(find, count);
         }
