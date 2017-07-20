@@ -30,6 +30,7 @@ ALL_INTEL=\
     validate_avx512f \
     speedup_avx512f \
     unittests_avx512f \
+    speedup_avx512bw \
     validate_avx512bw \
     unittests_avx512bw \
 
@@ -93,6 +94,9 @@ unittests_avx512f: src/unittests.cpp $(DEPS_AVX512F)
 validate_avx512bw: src/validate.cpp src/application_base.cpp $(DEPS_AVX512BW)
 	$(CXX) $(FLAGS_AVX512BW) src/validate.cpp -o $@
 
+speedup_avx512bw: src/speedup.cpp $(DEPS_AVX512BW)
+	$(CXX) $(FLAGS_AVX512BW) -DNDEBUG src/speedup.cpp -o $@
+
 unittests_avx512bw: src/unittests.cpp $(DEPS_AVX512BW)
 	$(CXX) $(FLAGS_AVX512BW) src/unittests.cpp -o $@
 
@@ -142,9 +146,12 @@ test_avx512f: unittests_avx512f validate_avx512f data/words data/i386.txt
 run_avx512f: speedup_avx512f data/words data/i386.txt
 	./speedup_avx512f data/i386.txt data/words
 
+run_avx512bw: speedup_avx512bw data/words data/i386.txt
+	./speedup_avx512bw data/i386.txt data/words
+
 test_avx512bw: unittests_avx512bw validate_avx512bw data/words data/i386.txt
-	$(SDE) ./unittests_avx512bw
-	$(SDE) ./validate_avx512bw data/i386.txt data/words
+	./unittests_avx512bw
+	./validate_avx512bw data/i386.txt data/words
 
 test_arm: unittests_arm validate_arm data/words data/i386.txt
 	./unittests_arm
