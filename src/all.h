@@ -1,5 +1,6 @@
 #include "common.h"
 #include <utils/bits.cpp>
+#include <errno.h>
 #include "fixed-memcmp.cpp"
 #include "scalar.cpp"
 #include "swar64-strstr-v2.cpp"
