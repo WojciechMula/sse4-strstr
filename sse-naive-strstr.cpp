@@ -8,7 +8,11 @@ size_t FORCE_INLINE sse_naive_strstr_anysize(const char* s, size_t n, const char
     assert(k > 0);
     assert(n > 0);
 
-    for (size_t i = 0; i < n - k; i += 16) {
+    if (n == k) {
+        return (memcmp(s, needle, k) == 0) ? 0 : std::string::npos;
+    }
+
+    for (size_t i = 0; i < n - k + 1; i += 16) {
         uint16_t found = 0xffff;
         for (size_t j = 0; (j < k) && (found != 0) ; ++j) {
             const __m128i textvector = _mm_loadu_si128((const __m128i *)(s + i + j));
