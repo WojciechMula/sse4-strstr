@@ -2,7 +2,7 @@
 
 SDE=sde -cnl --
 
-FLAGS=-std=c++11 -O3 -Wall -Wextra -pedantic -Wfatal-errors -I.
+FLAGS=-std=c++11 -O3 -Wall -Wextra -pedantic -I. $(CXXFLAGS)
 FLAGS_INTEL=$(FLAGS) -DHAVE_SSE_INSTRUCTIONS
 FLAGS_SSE4=$(FLAGS_INTEL) -msse4.2
 FLAGS_AVX2=$(FLAGS_INTEL) -mavx2 -DHAVE_AVX2_INSTRUCTIONS

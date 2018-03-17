@@ -16,14 +16,28 @@
 class Application final: public ApplicationBase {
 
     std::size_t count;
+    const std::string procedure_codes;
 
 public:
-    Application() : count(1) {}
+    struct Parameters {
+        std::string file_name;
+        std::string words_name;
+        size_t count = 10;
+        std::string procedure_codes;
+    };
+
+public:
+    Application(const Parameters& params)
+        : count(params.count)
+        , procedure_codes(params.procedure_codes) {
+    
+        prepare(params.file_name, params.words_name);
+    }
 
     bool operator()() {
 
-        const bool measure_scalar     = true;
-        const bool measure_libc       = true;
+        const bool measure_scalar     = is_enabled('a');
+        const bool measure_libc       = is_enabled('b');
 #if defined(__GNUC__) && !defined(HAVE_NEON_INSTRUCTIONS)
         // GNU std::string::find was proven to be utterly slow,
         // don't waste our time on reconfirming that fact.
@@ -31,43 +45,43 @@ public:
         // (On Raspberry Pi it's fast, though)
         const bool measure_stdstring  = false;
 #else
-        const bool measure_stdstring  = true;
+        const bool measure_stdstring  = is_enabled('c');
 #endif
 #if defined(HAVE_NEON_INSTRUCTIONS) && !defined(HAVE_AARCH64_ARCHITECTURE)
-        // On Raspberry Pi it's terriby slow, but on Aarch64
+        // On Raspberry Pi it's terribly slow, but on Aarch64
         // the 64-bit procedure is pretty fast
         const bool measure_swar64     = false;
 #else
-        const bool measure_swar64     = true;
+        const bool measure_swar64     = is_enabled('d');
 #endif
 
-        const bool measure_swar32     = true;
+        const bool measure_swar32     = is_enabled('e');
 #ifdef HAVE_SSE_INSTRUCTIONS
-        const bool measure_sse2       = true;
-        const bool measure_sse41      = true;
-        const bool measure_sse41unrl  = true;
-        const bool measure_sse42      = true;
-        const bool measure_sse_naive  = true;
+        const bool measure_sse2       = is_enabled('f');
+        const bool measure_sse41      = is_enabled('g');
+        const bool measure_sse41unrl  = is_enabled('h');
+        const bool measure_sse42      = is_enabled('i');
+        const bool measure_sse_naive  = is_enabled('j');
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
-        const bool measure_avx2         = true;
-        const bool measure_avx2_v2      = true;
-        const bool measure_avx2_naive   = true;
-        const bool measure_avx2_naive_unrolled   = true;
-        const bool measure_avx2_naive64 = true;
+        const bool measure_avx2         = is_enabled('k');
+        const bool measure_avx2_v2      = is_enabled('l');
+        const bool measure_avx2_naive   = is_enabled('m');
+        const bool measure_avx2_naive_unrolled   = is_enabled('n');
+        const bool measure_avx2_naive64 = is_enabled('o');
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
-        const bool measure_avx512f    = true;
-        const bool measure_avx512f_v2 = true;
+        const bool measure_avx512f    = is_enabled('p');
+        const bool measure_avx512f_v2 = is_enabled('q');
 #endif
 #ifdef HAVE_AVX512BW_INSTRUCTIONS
-        const bool measure_avx512bw_v2 = true;
+        const bool measure_avx512bw_v2 = is_enabled('r');
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
-        const bool measure_neon_v2    = true;
+        const bool measure_neon_v2 = is_enabled('s');
 #endif
 #ifdef HAVE_AARCH64_ARCHITECTURE
-        const bool measure_aarch64_v2 = true;
+        const bool measure_aarch64_v2 = is_enabled('t');
 #endif
 
         if (measure_scalar) {
@@ -331,49 +345,51 @@ public:
     }
 
 
-    void prepare(const std::string& file_name, const std::string& words_name, size_t cnt) {
-
-        ApplicationBase::prepare(file_name, words_name);
-        count = cnt;
-    }
-
-
-    void print_help(const char* progname) {
-        std::printf("%s file words [count]\n", progname);
+    static void print_help(const char* progname) {
+        std::printf("%s file words [count] [procedure]\n", progname);
         std::puts("");
         std::puts(
             "Measure speed of following procedures: "
-              "std::strstr"
-            ", std::string::find"
-            ", SWAR 64-bit (generic)"
-            ", SWAR 32-bit (generic)"
+              "[a] scalar"
+            ", [b] std::strstr"
+            ", [c] std::string::find"
+            ", [d] SWAR 64-bit (generic)"
+            ", [e] SWAR 32-bit (generic)"
 #ifdef HAVE_SSE_INSTRUCTIONS
-            ", SSE2 (generic)"
-            ", SSE4.1 (MPSADBW)"
-            ", SSE4.1 (MPSADBW unrolled)"
-            ", SSE4.2 (PCMPESTRM)"
+            ", [f] SSE2 (generic)"
+            ", [g] SSE4.1 (MPSADBW)"
+            ", [h] SSE4.1 (MPSADBW unrolled)"
+            ", [i] SSE4.2 (PCMPESTRM)"
+            ", [j] SSE (naive)"
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
-            ", AVX2 (MPSADBW)"
-            ", AVX2 (generic)"
+            ", [k] AVX2 (MPSADBW)"
+            ", [l] AVX2 (generic)"
+            ", [m] AVX2 (naive)"
+            ", [n] AVX2 (naive unrolled)"
+            ", [o] AVX2-wide (naive)"
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
-            ", AVX512F (MPSADBW-like)"
-            ", AVX512F (generic)"
+            ", [p] AVX512F (MPSADBW-like)"
+            ", [q] AVX512F (generic)"
+#endif
+#ifdef HAVE_AVX512BW_INSTRUCTIONS
+            ", [r] AVX512BW (generic)"
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
-            ", ARM Neon 32 bit (v2)"
+            ", [s] ARM Neon 32 bit (v2)"
 #endif
 #ifdef HAVE_AARCH64_ARCHITECTURE
-            ", AArch64 64 bit (v2)"
+            ", [t] AArch64 64 bit (v2)"
 #endif
         );
         std::puts("");
         std::puts("Parameters:");
         std::puts("");
-        std::puts("  file  - arbitrary file");
-        std::puts("  words - list of words in separate lines");
-        std::puts("  count - repeat count (optional, default = 10)");
+        std::puts("  file      - arbitrary file");
+        std::puts("  words     - list of words in separate lines");
+        std::puts("  count     - repeat count (optional, default = 10)");
+        std::puts("  procedure - letter(s) from square brackets (by default all functions are checked)");
     }
 
 
@@ -398,37 +414,57 @@ private:
 
         printf("reference result = %lu, time = %10.6f s\n", result, td.count());
     }
+
+
+    bool is_enabled(char proc) const {
+        return (procedure_codes.empty())
+            || (procedure_codes.find(proc) != std::string::npos);
+    }
 };
+
+
+bool parse(int argc, char* argv[], Application::Parameters& p) {
+    if (argc < 3) {
+        return false;
+    }
+
+    p.file_name = argv[1];
+    p.words_name = argv[2];
+
+    if (argc >= 4) {
+        size_t tmp = atoi(argv[3]);
+        if (tmp > 0) {
+            p.count = tmp;
+        } else {
+            printf("repeat count '%s' invalid, keeping default %lu\n", argv[3], p.count);
+        }
+    }
+
+    if (argc >= 5) {
+        p.procedure_codes = argv[4];
+    }
+
+    return true;
+}
 
 
 int main(int argc, char* argv[]) {
 
-    Application app;
+    try {
 
-    if (argc == 3 || argc == 4) {
-        try {
-            size_t count = 10;
-            if (argc == 4) {
-                size_t tmp = atoi(argv[3]);
-                if (tmp > 0) {
-                    count = tmp;
-                } else {
-                    printf("repeat count '%s' invalid, keeping default %d\n", argv[3], count);
-                }
-            }
-            app.prepare(argv[1], argv[2], count);
-
-            return app() ? EXIT_SUCCESS : EXIT_FAILURE;
-
-        } catch (ApplicationBase::Error& err) {
-
-            const auto msg = ansi::seq("Error: ", ansi::RED);
-            printf("%s: %s\n", msg.data(), err.message.data());
-
+        Application::Parameters params;
+        if (!parse(argc, argv, params)) {
+            Application::print_help(argv[0]);
             return EXIT_FAILURE;
         }
-    } else {
-        app.print_help(argv[0]);
+
+        Application app(params);
+        return app() ? EXIT_SUCCESS : EXIT_FAILURE;
+
+    } catch (ApplicationBase::Error& err) {
+
+        const auto msg = ansi::seq("Error: ", ansi::RED);
+        printf("%s: %s\n", msg.data(), err.message.data());
 
         return EXIT_FAILURE;
     }
