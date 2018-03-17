@@ -428,6 +428,12 @@ bool parse(int argc, char* argv[], Application::Parameters& p) {
         return false;
     }
 
+    for (int i=1; i < argc; i++) {
+        const std::string tmp = argv[i];
+        if (tmp == "-h" || tmp == "--help")
+            return false;
+    }
+
     p.file_name = argv[1];
     p.words_name = argv[2];
 
