@@ -8,7 +8,11 @@ size_t FORCE_INLINE avx2_naive_strstr_anysize(const char* s, size_t n, const cha
     assert(k > 0);
     assert(n > 0);
 
-    for (size_t i = 0; i < n - k; i += 32) {
+    if (n == k) {
+        return (memcmp(s, needle, k) == 0) ? 0 : std::string::npos;
+    }
+
+    for (size_t i = 0; i < n - k + 1; i += 32) {
         uint32_t found = 0xffffffff;
         for (size_t j = 0; (j < k) && (found != 0) ; ++j) {
             const __m256i textvector = _mm256_loadu_si256((const __m256i *)(s + i + j));

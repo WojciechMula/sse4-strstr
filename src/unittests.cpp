@@ -74,6 +74,7 @@ int main() {
 #ifdef HAVE_AVX2_INSTRUCTIONS
     bool test_avx2       = true;
     bool test_avx2_v2    = true;
+    bool test_avx2_naive = true;
 #endif
 #ifdef HAVE_AVX512F_INSTRUCTIONS
     bool test_avx512f    = true;
@@ -178,6 +179,16 @@ int main() {
         };
 
         if (!tests.run("AVX2 (v2)", wrp)) {
+            ret = EXIT_FAILURE;
+        }
+    }
+
+    if (test_avx2_naive) {
+        auto wrp = [](const char* s1, size_t n1, const char* s2, size_t n2){
+            return avx2_naive_strstr(s1, n1, s2, n2);
+        };
+
+        if (!tests.run("AVX2 (naive)", wrp)) {
             ret = EXIT_FAILURE;
         }
     }
