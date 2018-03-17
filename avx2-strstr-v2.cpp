@@ -33,6 +33,7 @@ size_t FORCE_INLINE avx2_strstr_anysize(const char* s, size_t n, const char* nee
     return std::string::npos;
 }
 
+#include "avx2-strstr-v2-clang-specific.cpp"
 
 template <size_t K>
 size_t FORCE_INLINE avx2_strstr_eq(const char* s, size_t n, const char* needle) {
@@ -62,10 +63,14 @@ size_t FORCE_INLINE avx2_strstr_eq(const char* s, size_t n, const char* needle) 
         next1 = _mm256_inserti128_si256(next1, _mm256_extracti128_si256(curr, 1), 0); // b
         next1 = _mm256_inserti128_si256(next1, _mm256_extracti128_si256(next, 0), 1); // c
 
+#ifndef __clang__
         for (unsigned i=1; i < K; i++) {
             const __m256i substring = _mm256_alignr_epi8(next1, curr, i);
             eq = _mm256_and_si256(eq, _mm256_cmpeq_epi8(substring, broadcasted[i]));
         }
+#else
+        inner_loop<K>()(eq, next1, curr, broadcasted);
+#endif
 
         curr = next;
 
