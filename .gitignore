@@ -12,6 +12,7 @@ validate_avx512f
 
 unittests_avx512bw
 validate_avx512bw
+speedup_avx512bw
 
 speedup_arm
 unittests_arm
