@@ -1,3 +1,5 @@
+#pragma once
+
 #include "common.h"
 #include <utils/bits.cpp>
 #include <errno.h>

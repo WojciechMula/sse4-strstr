@@ -6,7 +6,7 @@
 #include <vector>
 #include <chrono>
 
-#include "all.h"
+#include "all_procedures.cpp"
 
 // ------------------------------------------------------------------------
 
@@ -15,6 +15,7 @@
 
 class Application final: public ApplicationBase {
 
+    Procedures db;
     std::size_t count;
     const std::string procedure_codes;
 
@@ -28,16 +29,15 @@ public:
 
 public:
     Application(const Parameters& params)
-        : count(params.count)
+        : db(all_procedures())
+        , count(params.count)
         , procedure_codes(params.procedure_codes) {
-    
+
         prepare(params.file_name, params.words_name);
     }
 
     bool operator()() {
 
-        const bool measure_scalar     = is_enabled('a');
-        const bool measure_libc       = is_enabled('b');
 #if defined(__GNUC__) && !defined(HAVE_NEON_INSTRUCTIONS)
         // GNU std::string::find was proven to be utterly slow,
         // don't waste our time on reconfirming that fact.
@@ -45,58 +45,29 @@ public:
         // (On Raspberry Pi it's fast, though)
         const bool measure_stdstring  = false;
 #else
-        const bool measure_stdstring  = is_enabled('c');
+        const bool measure_stdstring  = true;
 #endif
 #if defined(HAVE_NEON_INSTRUCTIONS) && !defined(HAVE_AARCH64_ARCHITECTURE)
         // On Raspberry Pi it's terribly slow, but on Aarch64
         // the 64-bit procedure is pretty fast
         const bool measure_swar64     = false;
 #else
-        const bool measure_swar64     = is_enabled('d');
+        const bool measure_swar64     = true;
 #endif
 
-        const bool measure_swar32     = is_enabled('e');
-#ifdef HAVE_SSE_INSTRUCTIONS
-        const bool measure_sse2       = is_enabled('f');
-        const bool measure_sse41      = is_enabled('g');
-        const bool measure_sse41unrl  = is_enabled('h');
-        const bool measure_sse42      = is_enabled('i');
-        const bool measure_sse_naive  = is_enabled('j');
-#endif
-#ifdef HAVE_AVX2_INSTRUCTIONS
-        const bool measure_avx2         = is_enabled('k');
-        const bool measure_avx2_v2      = is_enabled('l');
-        const bool measure_avx2_naive   = is_enabled('m');
-        const bool measure_avx2_naive_unrolled   = is_enabled('n');
-        const bool measure_avx2_naive64 = is_enabled('o');
-#endif
-#ifdef HAVE_AVX512F_INSTRUCTIONS
-        const bool measure_avx512f    = is_enabled('p');
-        const bool measure_avx512f_v2 = is_enabled('q');
-#endif
-#ifdef HAVE_AVX512BW_INSTRUCTIONS
-        const bool measure_avx512bw_v2 = is_enabled('r');
-#endif
-#ifdef HAVE_NEON_INSTRUCTIONS
-        const bool measure_neon_v2 = is_enabled('s');
-#endif
-#ifdef HAVE_AARCH64_ARCHITECTURE
-        const bool measure_aarch64_v2 = is_enabled('t');
-#endif
-
-        if (measure_scalar) {
+        if (is_enabled('a')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return strstr_naive(s.data(), s.size(), neddle.data(), neddle.size());
             };
 
-            printf("%-40s... ", "naive scalar");
+            printf("%-40s... ", db['a'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_libc) {
+        if (is_enabled('b')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
                 const char* res = strstr(s.data(), neddle.data());
@@ -108,234 +79,234 @@ public:
                 }
             };
 
-            printf("%-40s... ", "std::strstr");
+            printf("%-40s... ", db['b'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_stdstring) {
+        if (measure_stdstring && is_enabled('c')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return s.find(neddle);
             };
 
-            printf("%-40s... ", "std::string::find");
+            printf("%-40s... ", db['c'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_swar64) {
+        if (measure_swar64 && is_enabled('d')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return swar64_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "SWAR 64-bit (generic)");
+            printf("%-40s... ", db['d'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_swar32) {
+        if (is_enabled('e')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return swar32_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "SWAR 32-bit (generic)");
+            printf("%-40s... ", db['e'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
 #ifdef HAVE_SSE_INSTRUCTIONS
-        if (measure_sse2) {
+        if (is_enabled('f')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return sse2_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "SSE2 (generic)");
+            printf("%-40s... ", db['f'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_sse41) {
+        if (is_enabled('g')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return sse4_strstr(s, neddle);
             };
 
-            printf("%-40s... ", "SSE4.1 (MPSADBW)");
+            printf("%-40s... ", db['g'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_sse41unrl) {
+        if (is_enabled('h')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return sse4_strstr_unrolled(s, neddle);
             };
 
-            printf("%-40s... ", "SSE4.1 (MPSADBW unrolled)");
+            printf("%-40s... ", db['h'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_sse42) {
+        if (is_enabled('i')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return sse42_strstr(s, neddle);
             };
 
-            printf("%-40s... ", "SSE4.2 (PCMPESTRM)");
+            printf("%-40s... ", db['i'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_sse_naive) {
+        if (is_enabled('j')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return sse_naive_strstr(s, neddle);
             };
 
-            printf("%-40s... ", "SSE (naive)");
+            printf("%-40s... ", db['j'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 #endif
 
 #ifdef HAVE_AVX2_INSTRUCTIONS
-        if (measure_avx2) {
+        if (is_enabled('k')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx2_strstr(s, neddle);
             };
 
-            printf("%-40s... ", "AVX2 (MPSADBW)");
+            printf("%-40s... ", db['k'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_avx2_v2) {
+        if (is_enabled('l')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx2_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "AVX2 (generic)");
+            printf("%-40s... ", db['l'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_avx2_naive) {
+        if (is_enabled('m')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx2_naive_strstr(s, neddle);
             };
 
-            printf("%-40s... ", "AVX2 (naive)");
+            printf("%-40s... ", db['m'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_avx2_naive_unrolled) {
+        if (is_enabled('n')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx2_naive_unrolled_strstr(s, neddle);
             };
 
-            printf("%-40s... ", "AVX2 (naive unrolled)");
+            printf("%-40s... ", db['n'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_avx2_naive64) {
+        if (is_enabled('o')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx2_naive_strstr64(s, neddle);
             };
 
-            printf("%-40s... ", "AVX2-wide (naive)");
+            printf("%-40s... ", db['o'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 #endif
 
 #ifdef HAVE_AVX512F_INSTRUCTIONS
-        if (measure_avx512f) {
+        if (is_enabled('p')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx512f_strstr(s, neddle);
             };
 
-            printf("%-40s... ", "AVX512F (MPSADBW-like)");
+            printf("%-40s... ", db['p'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 
-        if (measure_avx512f_v2) {
+        if (is_enabled('q')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx512f_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "AVX512F (generic)");
+            printf("%-40s... ", db['q'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 #endif
 
 #ifdef HAVE_AVX512BW_INSTRUCTIONS
-	if (measure_avx512bw_v2) {
+	if (is_enabled('r')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return avx512bw_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "AVX512BW (generic)");
+            printf("%-40s... ", db['r'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 #endif
 
 #ifdef HAVE_NEON_INSTRUCTIONS
-        if (measure_neon_v2) {
+        if (is_enabled('s')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return neon_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "ARM Neon 32 bit (v2)");
+            printf("%-40s... ", db['s'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
 #endif
 
 #ifdef HAVE_AARCH64_ARCHITECTURE
-        if (measure_aarch64_v2) {
+        if (is_enabled('t')) {
 
             auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
                 return aarch64_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", "AArch64 64 bit (v2)");
+            printf("%-40s... ", db['t'].name.c_str());
             fflush(stdout);
             measure(find, count);
         }
@@ -348,48 +319,17 @@ public:
     static void print_help(const char* progname) {
         std::printf("%s file words [count] [procedure]\n", progname);
         std::puts("");
-        std::puts(
-            "Measure speed of following procedures: "
-              "[a] scalar"
-            ", [b] std::strstr"
-            ", [c] std::string::find"
-            ", [d] SWAR 64-bit (generic)"
-            ", [e] SWAR 32-bit (generic)"
-#ifdef HAVE_SSE_INSTRUCTIONS
-            ", [f] SSE2 (generic)"
-            ", [g] SSE4.1 (MPSADBW)"
-            ", [h] SSE4.1 (MPSADBW unrolled)"
-            ", [i] SSE4.2 (PCMPESTRM)"
-            ", [j] SSE (naive)"
-#endif
-#ifdef HAVE_AVX2_INSTRUCTIONS
-            ", [k] AVX2 (MPSADBW)"
-            ", [l] AVX2 (generic)"
-            ", [m] AVX2 (naive)"
-            ", [n] AVX2 (naive unrolled)"
-            ", [o] AVX2-wide (naive)"
-#endif
-#ifdef HAVE_AVX512F_INSTRUCTIONS
-            ", [p] AVX512F (MPSADBW-like)"
-            ", [q] AVX512F (generic)"
-#endif
-#ifdef HAVE_AVX512BW_INSTRUCTIONS
-            ", [r] AVX512BW (generic)"
-#endif
-#ifdef HAVE_NEON_INSTRUCTIONS
-            ", [s] ARM Neon 32 bit (v2)"
-#endif
-#ifdef HAVE_AARCH64_ARCHITECTURE
-            ", [t] AArch64 64 bit (v2)"
-#endif
-        );
-        std::puts("");
         std::puts("Parameters:");
         std::puts("");
         std::puts("  file      - arbitrary file");
         std::puts("  words     - list of words in separate lines");
         std::puts("  count     - repeat count (optional, default = 10)");
         std::puts("  procedure - letter(s) from square brackets (by default all functions are checked)");
+        std::puts("");
+        std::puts("Following procedures ara available:");
+        for (auto& item: all_procedures().procedures) {
+            printf(" [%c] %s\n", item.code, item.name.c_str());
+        }
     }
 
 

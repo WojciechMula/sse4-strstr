@@ -1,16 +1,16 @@
 // Implementation by Daniel Lemire
 // https://github.com/WojciechMula/sse4-strstr/issues/2
 
-size_t strstr_naive(const char * hay, int size, const char *needle, int needlesize) {
+size_t strstr_naive(const char * hay, size_t size, const char *needle, size_t needlesize) {
   const char first = needle[0];
-  const int maxpos = size - needlesize;
-  for(int i = 0; i < maxpos; i++) {
+  const ssize_t maxpos = ssize_t(size) - ssize_t(needlesize);
+  for(ssize_t i = 0; i < maxpos; i++) {
     if(hay[i] != first) {
        i++;
        while( i < maxpos && hay[i] != first ) i++;
        if ( i == maxpos ) break;
     }
-    int j = 1;
+    size_t j = 1;
     for( ; j < needlesize; ++j)
       if(hay[ i + j ] != needle[ j ] ) break;
     if( j == needlesize) return i;
