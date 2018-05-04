@@ -243,8 +243,6 @@ public:
                 return avx512bw_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['r'].name.c_str());
-            fflush(stdout);
             measure(find, 'r');
         }
 #endif
@@ -269,8 +267,6 @@ public:
                 return aarch64_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['t'].name.c_str());
-            fflush(stdout);
             measure(find, 't');
         }
 #endif
