@@ -62,9 +62,7 @@ public:
                 return strstr_naive(s.data(), s.size(), neddle.data(), neddle.size());
             };
 
-            printf("%-40s... ", db['a'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'a');
         }
 
         if (is_enabled('b')) {
@@ -79,9 +77,7 @@ public:
                 }
             };
 
-            printf("%-40s... ", db['b'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'b');
         }
 
         if (measure_stdstring && is_enabled('c')) {
@@ -91,9 +87,7 @@ public:
                 return s.find(neddle);
             };
 
-            printf("%-40s... ", db['c'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'c');
         }
 
         if (measure_swar64 && is_enabled('d')) {
@@ -103,9 +97,7 @@ public:
                 return swar64_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['d'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'd');
         }
 
         if (is_enabled('e')) {
@@ -115,9 +107,7 @@ public:
                 return swar32_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['e'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'e');
         }
 
 #ifdef HAVE_SSE_INSTRUCTIONS
@@ -128,9 +118,7 @@ public:
                 return sse2_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['f'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'f');
         }
 
         if (is_enabled('g')) {
@@ -140,9 +128,7 @@ public:
                 return sse4_strstr(s, neddle);
             };
 
-            printf("%-40s... ", db['g'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'g');
         }
 
         if (is_enabled('h')) {
@@ -152,9 +138,7 @@ public:
                 return sse4_strstr_unrolled(s, neddle);
             };
 
-            printf("%-40s... ", db['h'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'h');
         }
 
         if (is_enabled('i')) {
@@ -164,9 +148,7 @@ public:
                 return sse42_strstr(s, neddle);
             };
 
-            printf("%-40s... ", db['i'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'i');
         }
 
         if (is_enabled('j')) {
@@ -176,9 +158,7 @@ public:
                 return sse_naive_strstr(s, neddle);
             };
 
-            printf("%-40s... ", db['j'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'j');
         }
 #endif
 
@@ -190,9 +170,7 @@ public:
                 return avx2_strstr(s, neddle);
             };
 
-            printf("%-40s... ", db['k'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'k');
         }
 
         if (is_enabled('l')) {
@@ -202,9 +180,7 @@ public:
                 return avx2_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['l'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'l');
         }
 
         if (is_enabled('m')) {
@@ -214,9 +190,7 @@ public:
                 return avx2_naive_strstr(s, neddle);
             };
 
-            printf("%-40s... ", db['m'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'm');
         }
 
         if (is_enabled('n')) {
@@ -226,9 +200,7 @@ public:
                 return avx2_naive_unrolled_strstr(s, neddle);
             };
 
-            printf("%-40s... ", db['n'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'n');
         }
 
         if (is_enabled('o')) {
@@ -238,9 +210,7 @@ public:
                 return avx2_naive_strstr64(s, neddle);
             };
 
-            printf("%-40s... ", db['o'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'o');
         }
 #endif
 
@@ -252,9 +222,7 @@ public:
                 return avx512f_strstr(s, neddle);
             };
 
-            printf("%-40s... ", db['p'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'p');
         }
 
         if (is_enabled('q')) {
@@ -264,9 +232,7 @@ public:
                 return avx512f_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['q'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'q');
         }
 #endif
 
@@ -278,9 +244,7 @@ public:
                 return avx512bw_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['r'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 'r');
         }
 #endif
 
@@ -292,9 +256,7 @@ public:
                 return neon_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['s'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 's');
         }
 #endif
 
@@ -306,9 +268,7 @@ public:
                 return aarch64_strstr_v2(s, neddle);
             };
 
-            printf("%-40s... ", db['t'].name.c_str());
-            fflush(stdout);
-            measure(find, count);
+            measure(find, 't');
         }
 #endif
 
@@ -335,7 +295,10 @@ public:
 
 private:
     template <typename T_FIND>
-    void measure(T_FIND find, size_t count) {
+    void measure(T_FIND find, char code) {
+
+        printf("%-40s... ", db[code].name.c_str());
+        fflush(stdout);
 
         size_t result = 0;
 
