@@ -90,7 +90,7 @@ speedup_avx2: $(SPEEDUP_DEPS) $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) -DNDEBUG  src/speedup.cpp -o $@
 
 benchmark_avx2: $(BENCHMARK_DEPS) $(DEPS_SSE4)
-	$(CXX) $(FLAGS_SSE4) -DNDEBUG src/benchmark.cpp -o $@
+	$(CXX) $(FLAGS_AVX2) -DNDEBUG src/benchmark.cpp -o $@
 
 unittests_avx2: $(UNITTESTS_DEPS) $(DEPS_AVX2)
 	$(CXX) $(FLAGS_AVX2) src/unittests.cpp -o $@
@@ -99,7 +99,7 @@ validate_avx512f: $(VALIDATE_DEPS) $(DEPS_AVX512F)
 	$(CXX) $(FLAGS_AVX512F) src/validate.cpp -o $@
 
 benchmark_avx512f: $(BENCHMARK_DEPS) $(DEPS_SSE4)
-	$(CXX) $(FLAGS_SSE4) -DNDEBUG src/benchmark.cpp -o $@
+	$(CXX) $(FLAGS_AVX512F) -DNDEBUG src/benchmark.cpp -o $@
 
 speedup_avx512f: $(SPEEDUP_DEPS) $(DEPS_AVX512F)
 	$(CXX) $(FLAGS_AVX512F) -DNDEBUG  src/speedup.cpp -o $@
@@ -114,7 +114,7 @@ speedup_avx512bw: $(SPEEDUP_DEPS) $(DEPS_AVX512BW)
 	$(CXX) $(FLAGS_AVX512BW) -DNDEBUG src/speedup.cpp -o $@
 
 benchmark_avx512bw: $(BENCHMARK_DEPS) $(DEPS_SSE4)
-	$(CXX) $(FLAGS_SSE4) -DNDEBUG src/benchmark.cpp -o $@
+	$(CXX) $(FLAGS_AVX512BW) -DNDEBUG src/benchmark.cpp -o $@
 
 unittests_avx512bw: $(UNITTESTS_DEPS) $(DEPS_AVX512BW)
 	$(CXX) $(FLAGS_AVX512BW) src/unittests.cpp -o $@
