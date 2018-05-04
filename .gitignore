@@ -1,16 +1,20 @@
 speedup_sse4
+benchmark_sse4
 unittests_sse4
 validate_sse4
 
 speedup_avx2
+benchmark_avx2
 unittests_avx2
 validate_avx2
 
 speedup_avx512f
+benchmark_avx512f
 unittests_avx512f
 validate_avx512f
 
 unittests_avx512bw
+benchmark_avx512bw
 validate_avx512bw
 speedup_avx512bw
 
