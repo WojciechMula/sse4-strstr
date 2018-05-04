@@ -1,11 +1,9 @@
 // implements scheme described in http://0x80.pl/articles/simd-friendly-karp-rabin.html
 
-#define _mm512_set1_epu8(c) _mm512_set1_epi32(uint32_t(c) * 0x01010101u)
-
 __mmask16 FORCE_INLINE zero_byte_mask(const __m512i v) {
 
-    const __m512i v01  = _mm512_set1_epi32(0x01010101u);
-    const __m512i v80  = _mm512_set1_epi32(0x80808080u);
+    const __m512i v01  = _mm512_set1_epi8(0x01);
+    const __m512i v80  = _mm512_set1_epi8(int8_t(0x80));
 
     const __m512i v1   = _mm512_sub_epi32(v, v01);
     // tmp1 = (v - 0x01010101) & ~v & 0x80808080
@@ -20,8 +18,8 @@ size_t avx512f_strstr_v2_anysize(const char* string, size_t n, const char* needl
     assert(n > 0);
     assert(k > 0);
 
-    const __m512i first = _mm512_set1_epu8(needle[0]);
-    const __m512i last  = _mm512_set1_epu8(needle[k - 1]);
+    const __m512i first = _mm512_set1_epi8(needle[0]);
+    const __m512i last  = _mm512_set1_epi8(needle[k - 1]);
 
     char* haystack = const_cast<char*>(string);
     char* end      = haystack + n;
@@ -87,8 +85,8 @@ size_t avx512f_strstr_v2_memcmp(const char* string, size_t n, const char* needle
     assert(n > 0);
     assert(k > 0);
 
-    const __m512i first = _mm512_set1_epu8(needle[0]);
-    const __m512i last  = _mm512_set1_epu8(needle[k - 1]);
+    const __m512i first = _mm512_set1_epi8(needle[0]);
+    const __m512i last  = _mm512_set1_epi8(needle[k - 1]);
 
     char* haystack = const_cast<char*>(string);
     char* end      = haystack + n;
@@ -212,4 +210,3 @@ size_t avx512f_strstr_v2(const std::string& s, const std::string& needle) {
     return avx512f_strstr_v2(s.data(), s.size(), needle.data(), needle.size());
 }
 
-#undef _mm512_set1_epu8
