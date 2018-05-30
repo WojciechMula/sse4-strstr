@@ -128,7 +128,7 @@ speedup_arm: $(SPEEDUP_DEPS) $(DEPS_ARM)
 unittests_arm: $(UNITTESTS_DEPS) $(DEPS_ARM)
 	$(CXX) $(FLAGS_ARM) src/unittests.cpp -o $@
 
-validate_aarch64: $(VALIDATE_DEPS)$(DEPS_AARCH64)
+validate_aarch64: $(VALIDATE_DEPS) $(DEPS_AARCH64)
 	$(CXX) $(FLAGS_AARCH64) src/validate.cpp -o $@
 
 speedup_aarch64: $(SPEEDUP_DEPS) $(DEPS_AARCH64)
