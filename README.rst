@@ -18,7 +18,7 @@ Usage
 ------------------------------------------------------------------------
 
 To run unit and validation tests type ``make test_ARCH``, to run
-performance tests type ``make ``make run_ARCH``. Value ``ARCH`` selectes
+performance tests type ``make run_ARCH``. Value ``ARCH`` selectes
 the CPU architecture:
 
 * sse4,
