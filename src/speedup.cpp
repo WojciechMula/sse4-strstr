@@ -304,12 +304,13 @@ private:
 
         const auto t1 = std::chrono::high_resolution_clock::now();
 
-        while (count != 0) {
+        auto k = count;
+        while (k != 0) {
             for (const auto& word: words) {
                 result += find(file, word);
             }
 
-            count--;
+            k--;
         }
 
         const auto t2 = std::chrono::high_resolution_clock::now();
