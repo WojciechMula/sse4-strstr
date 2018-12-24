@@ -59,6 +59,8 @@ private:
             const auto len = strlen(buffer);
             if (buffer[len - 1] == '\n') {
                 buffer[len - 1] = 0;
+                if (len == 1) // skip empty strings
+                    continue;
             }
 
             words.push_back(buffer);
