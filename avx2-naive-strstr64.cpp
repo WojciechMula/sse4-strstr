@@ -23,16 +23,16 @@ size_t FORCE_INLINE avx2_naive_strstr_anysize64(const char* s, size_t n, const c
         const __m256i eq_first2 = _mm256_cmpeq_epi8(first, block_first2);
         const __m256i eq_last2  = _mm256_cmpeq_epi8(last, block_last2);
 
-        uint32_t mask1 = _mm256_movemask_epi8(_mm256_and_si256(eq_first1, eq_last1));
-        uint32_t mask2 = _mm256_movemask_epi8(_mm256_and_si256(eq_first2, eq_last2));
-        uint64_t mask = mask1  | ((uint64_t)mask2 << 32);
+        const uint32_t mask1 = _mm256_movemask_epi8(_mm256_and_si256(eq_first1, eq_last1));
+        const uint32_t mask2 = _mm256_movemask_epi8(_mm256_and_si256(eq_first2, eq_last2));
+        uint64_t mask = mask1 | ((uint64_t)mask2 << 32);
 
         while (mask != 0) {
             const int bitpos = __builtin_ctzll(mask);
             if (memcmp(s + i + bitpos + 1, needle + 1, k - 2) == 0) {
                 return i + bitpos;
             }
-            mask ^= mask & (-mask);
+            mask = bits::clear_leftmost_set(mask);
         }
     }
 
