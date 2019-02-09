@@ -253,7 +253,7 @@ public:
             return avx512bw_strstr_v3(s, neddle);
         };
 
-        measure(find, 'v');
+        measure(find, 'u');
     }
 #endif
 
@@ -286,7 +286,7 @@ public:
 
 
     static void print_help(const char* progname) {
-        std::printf("%s file needle-position needle-size iteration-count test-name [procedures]\n", progname);
+        std::printf("%s needle-position needle-size iteration-count test-name [procedures]\n", progname);
         std::puts("");
         std::puts("Parameters:");
         std::puts("");
