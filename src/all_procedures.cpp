@@ -100,6 +100,7 @@ Procedures all_procedures() {
 
 #ifdef HAVE_AVX512BW_INSTRUCTIONS
     REGISTER('r', "AVX512BW (generic)", avx512bw_strstr_v2);
+    REGISTER('u', "AVX512BW (masked)", avx512bw_strstr_v3);
 #endif
 
 #ifdef HAVE_NEON_INSTRUCTIONS

@@ -29,6 +29,7 @@
 #endif
 #ifdef HAVE_AVX512BW_INSTRUCTIONS
 #   include "avx512bw-strstr-v2.cpp"
+#   include "avx512bw-strstr-v3.cpp"
 #endif
 #ifdef HAVE_NEON_INSTRUCTIONS
 #   include <utils/neon.cpp>

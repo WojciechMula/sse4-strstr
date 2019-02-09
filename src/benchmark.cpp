@@ -238,13 +238,23 @@ public:
 #ifdef HAVE_AVX512BW_INSTRUCTIONS
 	if (is_enabled('r')) {
 
-            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+        auto find = [](const std::string& s, const std::string& neddle) -> size_t {
 
-                return avx512bw_strstr_v2(s, neddle);
-            };
+            return avx512bw_strstr_v2(s, neddle);
+        };
 
-            measure(find, 'r');
-        }
+        measure(find, 'r');
+    }
+
+	if (is_enabled('u')) {
+
+        auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+            return avx512bw_strstr_v3(s, neddle);
+        };
+
+        measure(find, 'v');
+    }
 #endif
 
 #ifdef HAVE_NEON_INSTRUCTIONS
