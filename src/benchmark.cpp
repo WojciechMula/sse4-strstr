@@ -159,6 +159,26 @@ public:
 
             measure(find, 'j');
         }
+
+        if (is_enabled('v')) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return sse2_strstr_needle4(s, neddle);
+            };
+
+            measure(find, 'v');
+        }
+
+        if (is_enabled('w')) {
+
+            auto find = [](const std::string& s, const std::string& neddle) -> size_t {
+
+                return sse2_strstr_needle4_v2(s, neddle);
+            };
+
+            measure(find, 'w');
+        }
 #endif
 
 #ifdef HAVE_AVX2_INSTRUCTIONS
@@ -310,11 +330,13 @@ public:
 
 
 private:
+    volatile size_t sink;
+
     template <typename T_FIND>
     void measure(T_FIND find, char code) {
 
         BEST_TIME(/**/,
-                  find(input, needle),
+                  sink = find(input, needle),
                   db[code].name.c_str(),
                   parameters.count,
                   parameters.needle_position);

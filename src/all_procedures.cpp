@@ -84,6 +84,8 @@ Procedures all_procedures() {
     REGISTER('h', "SSE4.1 (MPSADBW unrolled)", sse4_strstr_unrolled);
     REGISTER('i', "SSE4.2 (PCMPESTRM)", sse42_strstr);
     REGISTER('j', "SSE (naive)", sse_naive_strstr);
+    REGISTER('v', "SSE2 (4-byte needle)", sse2_strstr_needle4);
+    REGISTER('w', "SSE2 (4-byte needle v2)", sse2_strstr_needle4_v2);
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
     REGISTER('k', "AVX2 (MPSADBW)", avx2_strstr);
@@ -100,15 +102,15 @@ Procedures all_procedures() {
 
 #ifdef HAVE_AVX512BW_INSTRUCTIONS
     REGISTER('r', "AVX512BW (generic)", avx512bw_strstr_v2);
-    REGISTER('u', "AVX512BW (masked)", avx512bw_strstr_v3);
+    REGISTER('s', "AVX512BW (masked)", avx512bw_strstr_v3);
 #endif
 
 #ifdef HAVE_NEON_INSTRUCTIONS
-    REGISTER('s', "ARM Neon 32 bit (v2)", neon_strstr_v2);
+    REGISTER('t', "ARM Neon 32 bit (v2)", neon_strstr_v2);
 #endif
 
 #ifdef HAVE_AARCH64_ARCHITECTURE
-    REGISTER('t', "AArch64 64 bit (v2)", aarch64_strstr_v2);
+    REGISTER('u', "AArch64 64 bit (v2)", aarch64_strstr_v2);
 #endif
 
 #undef REGISTER

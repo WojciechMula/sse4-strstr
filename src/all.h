@@ -14,6 +14,7 @@
 #   include "sse4.2-strstr.cpp"
 #   include "sse2-strstr.cpp"
 #   include "sse-naive-strstr.cpp"
+#   include "sse2-needle4.cpp"
 #endif
 #ifdef HAVE_AVX2_INSTRUCTIONS
 #   include <utils/avx2.cpp>
